@@ -1,0 +1,451 @@
+{% extends "base.html" %}
+
+{% block progress_bar %}
+<div class="progress-display">
+    <span class="progress-label">Progress:</span>
+    <span class="progress-percentage">{{ progress }}%</span>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .elf-module-container {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        color: #ffffff;
+    }
+
+    .elf-module-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .elf-module-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .elf-module-header p {
+        color: #888;
+        font-size: 1.1rem;
+    }
+
+    .game-status {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: #0f0f0f;
+        border: 2px solid #333;
+        border-radius: 8px;
+    }
+
+    .game-status.completed {
+        border-color: #4CAF50;
+        background: rgba(76, 175, 80, 0.1);
+    }
+
+    .attempts-counter {
+        color: #888;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    .toys-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .broken-toy {
+        background: #0f0f0f;
+        border: 2px solid #333;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        position: relative;
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .broken-toy.fixed {
+        border-color: #4CAF50;
+        background: rgba(76, 175, 80, 0.1);
+    }
+
+    .toy-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        filter: grayscale(0.5);
+        opacity: 0.7;
+    }
+
+    .broken-toy.fixed .toy-icon {
+        filter: grayscale(0);
+        opacity: 1;
+    }
+
+    .toy-name {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .toy-status {
+        font-size: 0.9rem;
+        color: #888;
+    }
+
+    .broken-toy.fixed .toy-status {
+        color: #4CAF50;
+    }
+
+    .drop-zone {
+        width: 100%;
+        height: 80px;
+        border: 2px dashed #555;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .drop-zone.drag-over {
+        border-color: #4a9eff;
+        background: rgba(74, 158, 255, 0.1);
+    }
+
+    .drop-zone.filled {
+        border-color: #4CAF50;
+        background: rgba(76, 175, 80, 0.1);
+    }
+
+    .drop-zone-text {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .drop-zone.filled .drop-zone-text {
+        display: none;
+    }
+
+    .part-placed {
+        font-size: 2rem;
+    }
+
+    .parts-container {
+        background: #0f0f0f;
+        border: 2px solid #333;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .parts-container h3 {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-size: 1.3rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .parts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 1rem;
+    }
+
+    .spare-part {
+        background: #1a1a1a;
+        border: 2px solid #4a9eff;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        cursor: grab;
+        transition: all 0.3s ease;
+        user-select: none;
+    }
+
+    .spare-part:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(74, 158, 255, 0.3);
+    }
+
+    .spare-part:active {
+        cursor: grabbing;
+    }
+
+    .spare-part.used {
+        opacity: 0.3;
+        cursor: not-allowed;
+        border-color: #333;
+    }
+
+    .part-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .part-name {
+        font-size: 0.8rem;
+        color: #888;
+        text-transform: uppercase;
+    }
+
+    .module-actions {
+        text-align: center;
+        margin-top: 2rem;
+    }
+
+    .complete-button {
+        display: inline-block;
+        padding: 1rem 3rem;
+        background: #4CAF50;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .complete-button:hover {
+        background: #45a049;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    .complete-button:disabled {
+        background: #333;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .back-button {
+        display: inline-block;
+        padding: 0.8rem 2rem;
+        color: #ffffff;
+        border: 2px solid #ffffff;
+        text-decoration: none;
+        font-size: 1rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+        margin-left: 1rem;
+    }
+
+    .back-button:hover {
+        background: #ffffff;
+        color: #1a1a1a;
+    }
+
+    .success-message {
+        text-align: center;
+        padding: 2rem;
+        background: rgba(76, 175, 80, 0.1);
+        border: 2px solid #4CAF50;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+
+    .success-message h2 {
+        color: #4CAF50;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="elf-module-container">
+    <div class="elf-module-header">
+        <h1>🔧 Elf Crisis: Toy Repair Station</h1>
+        <p>Help the elves fix broken toys by matching the correct parts!</p>
+    </div>
+
+    {% if is_completed %}
+    <div class="success-message">
+        <h2>✓ Module Completed!</h2>
+        <p>All toys have been successfully repaired. Great work!</p>
+    </div>
+    {% else %}
+    <div class="game-status" id="gameStatus">
+        <div>Fix all 3 toys to complete the module</div>
+        <div class="attempts-counter">Toys Fixed: <span id="fixedCount">0</span>/3</div>
+    </div>
+
+    <div class="toys-container">
+        <div class="broken-toy" data-toy="robot" data-part="gear">
+            <div class="toy-icon">🤖</div>
+            <div class="toy-name">Broken Robot</div>
+            <div class="toy-status">Missing: Gear</div>
+            <div class="drop-zone" data-toy="robot">
+                <div class="drop-zone-text">Drop ⚙️ here</div>
+            </div>
+        </div>
+
+        <div class="broken-toy" data-toy="car" data-part="wheel">
+            <div class="toy-icon">🚗</div>
+            <div class="toy-name">Broken Car</div>
+            <div class="toy-status">Missing: Wheel</div>
+            <div class="drop-zone" data-toy="car">
+                <div class="drop-zone-text">Drop 🛞 here</div>
+            </div>
+        </div>
+
+        <div class="broken-toy" data-toy="doll" data-part="button">
+            <div class="toy-icon">🧸</div>
+            <div class="toy-name">Broken Doll</div>
+            <div class="toy-status">Missing: Button</div>
+            <div class="drop-zone" data-toy="doll">
+                <div class="drop-zone-text">Drop 🔘 here</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="parts-container">
+        <h3>Spare Parts</h3>
+        <div class="parts-grid">
+            <div class="spare-part" draggable="true" data-part="gear" data-part-icon="⚙️">
+                <div class="part-icon">⚙️</div>
+                <div class="part-name">Gear</div>
+            </div>
+            <div class="spare-part" draggable="true" data-part="wheel" data-part-icon="🛞">
+                <div class="part-icon">🛞</div>
+                <div class="part-name">Wheel</div>
+            </div>
+            <div class="spare-part" draggable="true" data-part="button" data-part-icon="🔘">
+                <div class="part-icon">🔘</div>
+                <div class="part-name">Button</div>
+            </div>
+            <div class="spare-part" draggable="true" data-part="spring" data-part-icon="🪀">
+                <div class="part-icon">🪀</div>
+                <div class="part-name">Spring</div>
+            </div>
+            <div class="spare-part" draggable="true" data-part="battery" data-part-icon="🔋">
+                <div class="part-icon">🔋</div>
+                <div class="part-name">Battery</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="module-actions">
+        <form method="POST" action="{{ url_for('complete_elf') }}" id="completeForm" style="display: none;">
+            <button type="submit" class="complete-button" id="completeButton" disabled>Complete Module</button>
+        </form>
+        <a href="{{ url_for('map') }}" class="back-button">Back to Control Room</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    {% if not is_completed %}
+    (function() {
+        let fixedCount = 0;
+        const totalToys = 3;
+        const toyParts = {
+            'robot': 'gear',
+            'car': 'wheel',
+            'doll': 'button'
+        };
+
+        // Get all draggable parts
+        const parts = document.querySelectorAll('.spare-part');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        const toys = document.querySelectorAll('.broken-toy');
+
+        // Drag and drop functionality
+        parts.forEach(part => {
+            part.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    part: part.dataset.part,
+                    icon: part.dataset.partIcon
+                }));
+            });
+        });
+
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (!zone.classList.contains('filled')) {
+                    zone.classList.add('drag-over');
+                }
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('drag-over');
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+
+                if (zone.classList.contains('filled')) {
+                    return;
+                }
+
+                const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                const toy = zone.closest('.broken-toy');
+                const toyName = toy.dataset.toy;
+                const requiredPart = toy.dataset.part;
+
+                // Check if the part matches
+                if (data.part === requiredPart) {
+                    // Correct part!
+                    zone.classList.add('filled');
+                    zone.innerHTML = `<div class="part-placed">${data.icon}</div>`;
+                    toy.classList.add('fixed');
+                    toy.querySelector('.toy-status').textContent = 'Fixed! ✓';
+                    toy.querySelector('.toy-status').style.color = '#4CAF50';
+
+                    // Mark part as used
+                    const usedPart = document.querySelector(`[data-part="${data.part}"]`);
+                    if (usedPart) {
+                        usedPart.classList.add('used');
+                        usedPart.draggable = false;
+                    }
+
+                    fixedCount++;
+                    updateGameStatus();
+
+                    if (fixedCount === totalToys) {
+                        // All toys fixed!
+                        document.getElementById('gameStatus').classList.add('completed');
+                        document.getElementById('gameStatus').innerHTML = '<div>🎉 All toys fixed! Module complete!</div>';
+                        document.getElementById('completeForm').style.display = 'inline-block';
+                        document.getElementById('completeButton').disabled = false;
+                    }
+                } else {
+                    // Wrong part - show feedback
+                    zone.style.borderColor = '#ff4444';
+                    zone.style.background = 'rgba(255, 68, 68, 0.1)';
+                    setTimeout(() => {
+                        zone.style.borderColor = '';
+                        zone.style.background = '';
+                    }, 500);
+                }
+            });
+        });
+
+        function updateGameStatus() {
+            document.getElementById('fixedCount').textContent = fixedCount;
+        }
+    })();
+    {% endif %}
+</script>
+{% endblock %}
+

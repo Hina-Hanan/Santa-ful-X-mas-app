@@ -1,0 +1,594 @@
+{% extends "base.html" %}
+
+{% block progress_bar %}
+<div class="progress-display">
+    <span class="progress-label">Progress:</span>
+    <span class="progress-percentage">{{ progress }}%</span>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reindeer-module-container {
+        padding: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+        color: #ffffff;
+    }
+
+    .reindeer-module-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .reindeer-module-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .reindeer-module-header p {
+        color: #888;
+        font-size: 1.1rem;
+    }
+
+    .game-status {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: #0f0f0f;
+        border: 2px solid #333;
+        border-radius: 8px;
+    }
+
+    .game-status.completed {
+        border-color: #4CAF50;
+        background: rgba(76, 175, 80, 0.1);
+    }
+
+    .instructions {
+        background: #0f0f0f;
+        border: 2px solid #4a9eff;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .instructions h3 {
+        color: #4a9eff;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .instructions p {
+        color: #ccc;
+        line-height: 1.6;
+    }
+
+    .game-area {
+        background: #0a0a0a;
+        border: 3px solid #333;
+        border-radius: 12px;
+        height: 400px;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .ground {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 80px;
+        background: linear-gradient(to top, #2a2a2a, #1a1a1a);
+        border-top: 2px solid #444;
+    }
+
+    .reindeer {
+        position: absolute;
+        bottom: 80px;
+        left: 100px;
+        font-size: 4rem;
+        transition: transform 0.1s ease;
+        z-index: 10;
+    }
+
+    .reindeer.jumping {
+        transform: translateY(-140px);
+        transition: transform 0.35s ease;
+    }
+
+    .obstacle {
+        position: absolute;
+        bottom: 80px;
+        left: 100%;
+        width: 35px;
+        height: 45px;
+        background: #ff4444;
+        border: 2px solid #cc0000;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        z-index: 5;
+    }
+
+    .obstacle::before {
+        content: '🪨';
+        font-size: 2.5rem;
+    }
+
+    .game-controls {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .jump-button {
+        padding: 1rem 3rem;
+        background: #4a9eff;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+
+    .jump-button:hover {
+        background: #6bb0ff;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(74, 158, 255, 0.3);
+    }
+
+    .jump-button:active {
+        transform: translateY(0);
+    }
+
+    .jump-button:disabled {
+        background: #333;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .progress-indicator {
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+        color: #888;
+    }
+
+    .progress-indicator span {
+        color: #4a9eff;
+        font-weight: 600;
+    }
+
+    .module-actions {
+        text-align: center;
+        margin-top: 2rem;
+    }
+
+    .complete-button {
+        display: inline-block;
+        padding: 1rem 3rem;
+        background: #4CAF50;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .complete-button:hover {
+        background: #45a049;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    .complete-button:disabled {
+        background: #333;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .back-button {
+        display: inline-block;
+        padding: 0.8rem 2rem;
+        color: #ffffff;
+        border: 2px solid #ffffff;
+        text-decoration: none;
+        font-size: 1rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+        margin-left: 1rem;
+    }
+
+    .back-button:hover {
+        background: #ffffff;
+        color: #1a1a1a;
+    }
+
+    .success-message {
+        text-align: center;
+        padding: 2rem;
+        background: rgba(76, 175, 80, 0.1);
+        border: 2px solid #4CAF50;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+
+    .success-message h2 {
+        color: #4CAF50;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .game-over {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.9);
+        padding: 2rem;
+        border-radius: 12px;
+        border: 2px solid #ff4444;
+        text-align: center;
+        z-index: 100;
+        display: none;
+    }
+
+    .game-over.show {
+        display: block;
+    }
+
+    .game-over h3 {
+        color: #ff4444;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .restart-button {
+        padding: 0.8rem 2rem;
+        background: #4a9eff;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-top: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reindeer-module-container">
+    <div class="reindeer-module-header">
+        <h1>🦌 Reindeer Navigation Challenge</h1>
+        <p>Guide the reindeer safely through obstacles!</p>
+    </div>
+
+    {% if is_completed %}
+    <div class="success-message">
+        <h2>✓ Module Completed!</h2>
+        <p>You've successfully navigated through all obstacles. Great flying!</p>
+    </div>
+    {% else %}
+    <div class="instructions">
+        <h3>How to Play</h3>
+        <p>Press <strong>SPACEBAR</strong> or click the <strong>JUMP</strong> button to make the reindeer jump over obstacles.<br>
+        Avoid 5 obstacles to complete the challenge!</p>
+    </div>
+
+    <div class="game-status" id="gameStatus">
+        <div>Navigate through obstacles</div>
+        <div class="progress-indicator">Obstacles Avoided: <span id="obstaclesAvoided">0</span>/5</div>
+    </div>
+
+    <div class="game-area" id="gameArea">
+        <div class="ground"></div>
+        <div class="reindeer" id="reindeer">🦌</div>
+        <div class="game-over" id="gameOver">
+            <h3>💥 Collision!</h3>
+            <p>Press restart to try again</p>
+            <button class="restart-button" onclick="restartGame()">Restart</button>
+        </div>
+    </div>
+
+    <div class="game-controls">
+        <button class="jump-button" id="jumpButton" onclick="jump()">JUMP (SPACE)</button>
+    </div>
+
+    <div class="module-actions">
+        <form method="POST" action="{{ url_for('complete_reindeer') }}" id="completeForm" style="display: none;">
+            <button type="submit" class="complete-button" id="completeButton">Complete Module</button>
+        </form>
+        <a href="{{ url_for('map') }}" class="back-button">Back to Control Room</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+    {% block extra_js %}
+<script>
+    {% if not is_completed %}
+    (function() {
+        let gameRunning = false;
+        let isJumping = false;
+        let obstaclesAvoided = 0;
+        let obstacles = [];
+        let gameSpeed = 6;
+        let obstacleInterval;
+        let animationFrame;
+        const targetObstacles = 5;
+
+        const reindeer = document.getElementById('reindeer');
+        const gameArea = document.getElementById('gameArea');
+        const jumpButton = document.getElementById('jumpButton');
+        const gameOver = document.getElementById('gameOver');
+        let obstaclesAvoidedEl = document.getElementById('obstaclesAvoided');
+
+        // Reindeer position constants
+        const REINDEER_LEFT = 100;
+        const REINDEER_WIDTH = 60;
+        const REINDEER_HEIGHT = 60;
+        const REINDEER_BOTTOM = 80;
+        const REINDEER_GROUND_Y = 400 - REINDEER_BOTTOM - REINDEER_HEIGHT;
+        const REINDEER_JUMP_Y = REINDEER_GROUND_Y - 120;
+
+        // Obstacle constants
+        const OBSTACLE_WIDTH = 35;
+        const OBSTACLE_HEIGHT = 45;
+        const OBSTACLE_BOTTOM = 80;
+
+        function jump() {
+            if (!gameRunning || isJumping) return;
+            
+            isJumping = true;
+            reindeer.classList.add('jumping');
+            
+            // Reset jump after animation completes
+            // Jump animation is 400ms, so keep isJumping true for that duration
+            setTimeout(() => {
+                reindeer.classList.remove('jumping');
+                // Keep isJumping true a bit longer to ensure collision doesn't happen during landing
+                setTimeout(() => {
+                    isJumping = false;
+                }, 100);
+            }, 400);
+        }
+
+        function createObstacle() {
+            if (!gameRunning) return;
+
+            const obstacle = document.createElement('div');
+            obstacle.className = 'obstacle';
+            const gameAreaWidth = gameArea.offsetWidth;
+            obstacle.style.left = gameAreaWidth + 'px'; // Start off-screen to the right
+            obstacle.style.bottom = OBSTACLE_BOTTOM + 'px';
+            obstacle.dataset.counted = 'false';
+            gameArea.appendChild(obstacle);
+            obstacles.push(obstacle);
+        }
+
+        function checkCollision(obstacleLeft, obstacleRight) {
+            // Reindeer position boundaries
+            const reindeerLeft = REINDEER_LEFT;
+            const reindeerRight = REINDEER_LEFT + REINDEER_WIDTH;
+            
+            // Check if there's actual horizontal overlap
+            // For collision, obstacle must be INSIDE reindeer's horizontal boundaries
+            // Obstacle's right edge must be past reindeer's left edge
+            // AND obstacle's left edge must be before reindeer's right edge
+            const hasHorizontalOverlap = obstacleRight > reindeerLeft && obstacleLeft < reindeerRight;
+            
+            // Only check collision when:
+            // 1. There's actual horizontal overlap (obstacle is touching/overlapping reindeer)
+            // 2. Reindeer is NOT jumping (reindeer is on the ground, same vertical level as obstacle)
+            // 3. Make sure we have actual overlap, not just touching edges
+            if (hasHorizontalOverlap && !isJumping) {
+                // Additional check: make sure there's meaningful overlap (at least 5px)
+                const overlapAmount = Math.min(obstacleRight, reindeerRight) - Math.max(obstacleLeft, reindeerLeft);
+                if (overlapAmount > 5) {
+                    return true; // Collision!
+                }
+            }
+            
+            return false; // No collision
+        }
+
+        function updateObstacles() {
+            if (!gameRunning) return;
+
+            const gameAreaWidth = gameArea.offsetWidth;
+            const obstaclesToRemove = [];
+
+            obstacles.forEach((obstacle, index) => {
+                // Get current position
+                let currentLeft = parseFloat(obstacle.style.left) || gameAreaWidth;
+                
+                // Move obstacle left
+                currentLeft -= gameSpeed;
+                obstacle.style.left = currentLeft + 'px';
+
+                // Calculate obstacle edges
+                const obstacleLeft = currentLeft;
+                const obstacleRight = currentLeft + OBSTACLE_WIDTH;
+
+                // Only check collision when obstacle is actually in the reindeer's area
+                // This prevents false collisions when obstacle is far away
+                // Check if obstacle is within the reindeer's collision zone (tight bounds)
+                const reindeerRight = REINDEER_LEFT + REINDEER_WIDTH;
+                const isInCollisionZone = obstacleRight >= REINDEER_LEFT && obstacleLeft <= reindeerRight;
+                
+                if (isInCollisionZone) {
+                    // Check collision only when obstacle is actually overlapping with reindeer
+                    // AND reindeer is on the ground (not jumping)
+                    if (checkCollision(obstacleLeft, obstacleRight)) {
+                        endGame(false);
+                        return;
+                    }
+                }
+
+                // Check if obstacle passed reindeer successfully
+                // Only count when obstacle has completely passed the reindeer (obstacle's right edge is past reindeer's left edge)
+                if (obstacleRight < REINDEER_LEFT && obstacle.dataset.counted !== 'true') {
+                    obstacle.dataset.counted = 'true';
+                    obstaclesAvoided++;
+                    if (obstaclesAvoidedEl) {
+                        obstaclesAvoidedEl.textContent = obstaclesAvoided;
+                    }
+                    
+                    // Check win condition
+                    if (obstaclesAvoided >= targetObstacles) {
+                        endGame(true);
+                        return;
+                    }
+                }
+
+                // Remove obstacle when off-screen to the left
+                if (obstacleRight < -OBSTACLE_WIDTH) {
+                    obstaclesToRemove.push(index);
+                    obstacle.remove();
+                }
+            });
+
+            // Remove obstacles from array (in reverse to maintain indices)
+            obstaclesToRemove.reverse().forEach(index => {
+                obstacles.splice(index, 1);
+            });
+
+            // Continue game loop
+            if (gameRunning) {
+                animationFrame = requestAnimationFrame(updateObstacles);
+            }
+        }
+
+        function startGame() {
+            if (gameRunning) return;
+            
+            gameRunning = true;
+            obstaclesAvoided = 0;
+            obstacles = [];
+            isJumping = false;
+            
+            if (obstaclesAvoidedEl) obstaclesAvoidedEl.textContent = '0';
+            if (gameOver) gameOver.classList.remove('show');
+            if (jumpButton) jumpButton.disabled = false;
+            
+            // Reset reindeer position
+            if (reindeer) {
+                reindeer.classList.remove('jumping');
+            }
+            
+            // Clear any existing obstacles
+            document.querySelectorAll('.obstacle').forEach(obs => obs.remove());
+            
+            // Create first obstacle after a short delay
+            setTimeout(() => {
+                if (gameRunning) {
+                    createObstacle();
+                    // Create new obstacles at intervals
+                    obstacleInterval = setInterval(() => {
+                        if (gameRunning && obstacles.length < 2) {
+                            createObstacle();
+                        }
+                    }, 1800);
+                }
+            }, 1000);
+
+            // Start the game loop
+            updateObstacles();
+        }
+
+        function endGame(success) {
+            gameRunning = false;
+            if (obstacleInterval) {
+                clearInterval(obstacleInterval);
+                obstacleInterval = null;
+            }
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = null;
+            }
+            if (jumpButton) jumpButton.disabled = true;
+
+            if (success) {
+                const gameStatus = document.getElementById('gameStatus');
+                if (gameStatus) {
+                    gameStatus.classList.add('completed');
+                    gameStatus.innerHTML = '<div>🎉 Challenge Complete! All obstacles avoided!</div>';
+                }
+                const completeForm = document.getElementById('completeForm');
+                if (completeForm) {
+                    completeForm.style.display = 'inline-block';
+                }
+            } else {
+                if (gameOver) gameOver.classList.add('show');
+            }
+        }
+
+        function restartGame() {
+            if (gameOver) gameOver.classList.remove('show');
+            
+            // Clear all obstacles
+            obstacles.forEach(obs => {
+                if (obs.parentNode) {
+                    obs.remove();
+                }
+            });
+            obstacles = [];
+            obstaclesAvoided = 0;
+            isJumping = false;
+            
+            const gameStatus = document.getElementById('gameStatus');
+            if (gameStatus) {
+                gameStatus.classList.remove('completed');
+                gameStatus.innerHTML = '<div>Navigate through obstacles</div><div class="progress-indicator">Obstacles Avoided: <span id="obstaclesAvoided">0</span>/5</div>';
+            }
+            obstaclesAvoidedEl = document.getElementById('obstaclesAvoided');
+            
+            // Reset reindeer
+            if (reindeer) {
+                reindeer.classList.remove('jumping');
+            }
+            
+            startGame();
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.key === ' ') {
+                e.preventDefault();
+                jump();
+            }
+        });
+
+        // Start game automatically after page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(startGame, 500);
+            });
+        } else {
+            setTimeout(startGame, 500);
+        }
+
+        // Make functions available globally
+        window.restartGame = restartGame;
+        window.jump = jump;
+    })();
+    {% endif %}
+</script>
+{% endblock %}
+

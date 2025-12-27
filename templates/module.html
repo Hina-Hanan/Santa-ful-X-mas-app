@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="module-container">
+    <h1>{{ module_name.replace('_', ' ').title() }}</h1>
+    <p>Module content coming soon...</p>
+    
+    {% if not is_completed %}
+    <form method="POST" action="{{ url_for('complete_module', module_name=module_name) }}" style="margin: 20px 0;">
+        <button type="submit" class="complete-button">Mark as Complete</button>
+    </form>
+    {% else %}
+    <div class="completion-status" style="margin: 20px 0; padding: 10px; background-color: #4CAF50; color: white; border-radius: 5px;">
+        ✓ Module Completed
+    </div>
+    {% endif %}
+    
+    <a href="{{ url_for('map') }}" class="back-button">Back to Control Room</a>
+</div>
+{% endblock %}
+

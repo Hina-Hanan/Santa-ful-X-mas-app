@@ -1,0 +1,425 @@
+{% extends "base.html" %}
+
+{% block progress_bar %}
+<div class="progress-display">
+    <span class="progress-label">Progress:</span>
+    <span class="progress-percentage">{{ progress }}%</span>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ethics-module-container {
+        padding: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+        color: #ffffff;
+    }
+
+    .ethics-module-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .ethics-module-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .ethics-module-header p {
+        color: #888;
+        font-size: 1.1rem;
+    }
+
+    .scenario-box {
+        background: #0f0f0f;
+        border: 2px solid #4a9eff;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .scenario-box h2 {
+        color: #4a9eff;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .scenario-box p {
+        color: #ccc;
+        line-height: 1.8;
+        font-size: 1.1rem;
+        text-align: center;
+    }
+
+    .santa-message {
+        background: rgba(74, 158, 255, 0.1);
+        border-left: 4px solid #4a9eff;
+        padding: 1rem 1.5rem;
+        margin: 1rem 0;
+        font-style: italic;
+        color: #aaa;
+    }
+
+    .regions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .region-card {
+        background: #0f0f0f;
+        border: 2px solid #333;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .region-card:hover {
+        border-color: #4a9eff;
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(74, 158, 255, 0.2);
+    }
+
+    .region-card.selected {
+        border-color: #4CAF50;
+        background: rgba(76, 175, 80, 0.1);
+    }
+
+    .region-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .region-name {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .region-description {
+        color: #888;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .region-stats {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #333;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: #666;
+        text-transform: uppercase;
+    }
+
+    .stat-value {
+        font-size: 1.2rem;
+        color: #4a9eff;
+        font-weight: 600;
+    }
+
+    .consequence-message {
+        background: rgba(76, 175, 80, 0.1);
+        border: 2px solid #4CAF50;
+        border-radius: 12px;
+        padding: 2rem;
+        margin: 2rem 0;
+        text-align: center;
+        display: none;
+    }
+
+    .consequence-message.show {
+        display: block;
+        animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .consequence-message h3 {
+        color: #4CAF50;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .consequence-message p {
+        color: #ccc;
+        font-size: 1.1rem;
+        line-height: 1.8;
+        font-style: italic;
+    }
+
+    .santa-signature {
+        margin-top: 1rem;
+        color: #888;
+        font-size: 0.9rem;
+    }
+
+    .module-actions {
+        text-align: center;
+        margin-top: 2rem;
+    }
+
+    .submit-button {
+        display: inline-block;
+        padding: 1rem 3rem;
+        background: #4CAF50;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+
+    .submit-button:hover {
+        background: #45a049;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    .submit-button:disabled {
+        background: #333;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .back-button {
+        display: inline-block;
+        padding: 0.8rem 2rem;
+        color: #ffffff;
+        border: 2px solid #ffffff;
+        text-decoration: none;
+        font-size: 1rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+        margin-left: 1rem;
+    }
+
+    .back-button:hover {
+        background: #ffffff;
+        color: #1a1a1a;
+    }
+
+    .success-message {
+        text-align: center;
+        padding: 2rem;
+        background: rgba(76, 175, 80, 0.1);
+        border: 2px solid #4CAF50;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+
+    .success-message h2 {
+        color: #4CAF50;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .hidden-form {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ethics-module-container">
+    <div class="ethics-module-header">
+        <h1>🎁 Gift Ethics Decision</h1>
+        <p>Make a difficult choice about gift distribution</p>
+    </div>
+
+    {% if is_completed %}
+    <div class="success-message">
+        <h2>✓ Module Completed!</h2>
+        <p>You've made your decision. Every choice has consequences, and you've handled this difficult situation with care.</p>
+    </div>
+    {% else %}
+    <div class="scenario-box">
+        <h2>🎅 Santa's Dilemma</h2>
+        <p>
+            Due to unexpected supply chain issues, we only have enough gifts for <strong>one region</strong> this Christmas Eve.
+            You must decide which region receives the limited gifts first. The other regions will receive their gifts 
+            in the following days, but this means some children will wait longer.
+        </p>
+        <div class="santa-message">
+            "This is never easy, but someone must make this decision. Consider carefully, 
+            as every choice has its own consequences and reasoning."
+        </div>
+    </div>
+
+    <div class="regions-grid" id="regionsGrid">
+        <div class="region-card" data-region="north" onclick="selectRegion('north')">
+            <div class="region-icon">❄️</div>
+            <div class="region-name">Northern Region</div>
+            <div class="region-description">
+                Cold, remote areas with harsh winters. Many families struggle with heating costs. 
+                Children here have been particularly affected by recent economic challenges.
+            </div>
+            <div class="region-stats">
+                <div class="stat-item">
+                    <div class="stat-label">Population</div>
+                    <div class="stat-value">2.5M</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Need Level</div>
+                    <div class="stat-value">High</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="region-card" data-region="south" onclick="selectRegion('south')">
+            <div class="region-icon">🌴</div>
+            <div class="region-name">Southern Region</div>
+            <div class="region-description">
+                Warmer climate, but many families are new to the area and lack community support. 
+                High number of single-parent households and working families.
+            </div>
+            <div class="region-stats">
+                <div class="stat-item">
+                    <div class="stat-label">Population</div>
+                    <div class="stat-value">3.2M</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Need Level</div>
+                    <div class="stat-value">Medium</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="region-card" data-region="east" onclick="selectRegion('east')">
+            <div class="region-icon">🌅</div>
+            <div class="region-name">Eastern Region</div>
+            <div class="region-description">
+                Densely populated urban areas. Many children in foster care and group homes. 
+                Strong community organizations but limited resources per child.
+            </div>
+            <div class="region-stats">
+                <div class="stat-item">
+                    <div class="stat-label">Population</div>
+                    <div class="stat-value">4.8M</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Need Level</div>
+                    <div class="stat-value">Very High</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="region-card" data-region="west" onclick="selectRegion('west')">
+            <div class="region-icon">🏔️</div>
+            <div class="region-name">Western Region</div>
+            <div class="region-description">
+                Mix of rural and suburban communities. Many military families and first responders. 
+                Strong family values but often isolated from support networks.
+            </div>
+            <div class="region-stats">
+                <div class="stat-item">
+                    <div class="stat-label">Population</div>
+                    <div class="stat-value">2.1M</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Need Level</div>
+                    <div class="stat-value">Medium</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="consequence-message" id="consequenceMessage">
+        <h3>🎅 Santa's Response</h3>
+        <p id="consequenceText"></p>
+        <div class="santa-signature">- Santa Claus</div>
+    </div>
+
+    <form method="POST" action="{{ url_for('complete_ethics') }}" id="ethicsForm" class="hidden-form">
+        <input type="hidden" name="choice" id="selectedChoice" value="">
+    </form>
+
+    <div class="module-actions">
+        <button type="button" class="submit-button" id="submitButton" onclick="submitChoice()" disabled>
+            Confirm Decision
+        </button>
+        <a href="{{ url_for('map') }}" class="back-button">Back to Control Room</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    {% if not is_completed %}
+    let selectedRegion = null;
+    const consequences = {
+        'north': "A thoughtful choice. The harsh winters in the North make this especially meaningful. The children there will be grateful for the warmth and joy these gifts bring during the coldest time of year. The other regions understand the urgency of this decision.",
+        'south': "A compassionate decision. Supporting families who are building new communities shows great empathy. These gifts will help strengthen bonds in neighborhoods that are still growing. The other regions will receive their gifts soon.",
+        'east': "A decision that prioritizes those with the greatest need. The children in foster care and group homes will find comfort and joy in these gifts. Your choice recognizes that sometimes the most vulnerable need support first.",
+        'west': "A choice that honors service and community. Military families and first responders sacrifice so much, and their children deserve recognition. This decision shows appreciation for those who protect and serve."
+    };
+
+    function selectRegion(region) {
+        // Remove previous selection
+        document.querySelectorAll('.region-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+
+        // Add selection to clicked card
+        const card = document.querySelector(`[data-region="${region}"]`);
+        card.classList.add('selected');
+        selectedRegion = region;
+
+        // Show consequence message
+        const messageDiv = document.getElementById('consequenceMessage');
+        const textDiv = document.getElementById('consequenceText');
+        textDiv.textContent = consequences[region];
+        messageDiv.classList.add('show');
+
+        // Enable submit button
+        document.getElementById('submitButton').disabled = false;
+        document.getElementById('selectedChoice').value = region;
+
+        // Scroll to consequence message
+        messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function submitChoice() {
+        if (selectedRegion) {
+            document.getElementById('ethicsForm').submit();
+        }
+    }
+    {% endif %}
+</script>
+{% endblock %}
+

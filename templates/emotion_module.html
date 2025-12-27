@@ -1,0 +1,609 @@
+{% extends "base.html" %}
+
+{% block progress_bar %}
+<div class="progress-display">
+    <span class="progress-label">Progress:</span>
+    <span class="progress-percentage">{{ progress }}%</span>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .emotion-module-container {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        color: #ffffff;
+    }
+
+    .emotion-module-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .emotion-module-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .emotion-module-header p {
+        color: #888;
+        font-size: 1.1rem;
+    }
+
+    .instructions-box {
+        background: #0f0f0f;
+        border: 2px solid #4a9eff;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .instructions-box h3 {
+        color: #4a9eff;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .instructions-box p {
+        color: #ccc;
+        line-height: 1.6;
+    }
+
+    .emotions-panel {
+        background: #0f0f0f;
+        border: 2px solid #333;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .emotions-panel h3 {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-size: 1.3rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .emotions-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+
+    .emotion-draggable {
+        background: #1a1a1a;
+        border: 2px solid #4a9eff;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        cursor: grab;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        user-select: none;
+    }
+
+    .emotion-draggable:active {
+        cursor: grabbing;
+    }
+
+    .emotion-draggable.dragging {
+        opacity: 0.5;
+        transform: scale(0.95);
+        z-index: 1000;
+    }
+
+    .emotion-draggable:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(74, 158, 255, 0.3);
+        border-color: #6bb0ff;
+    }
+
+    .emotion-draggable[data-emotion="hope"] {
+        border-color: #9b59b6;
+    }
+
+    .emotion-draggable[data-emotion="hope"]:hover {
+        border-color: #bb79d6;
+        box-shadow: 0 5px 20px rgba(155, 89, 182, 0.3);
+    }
+
+    .emotion-draggable[data-emotion="joy"] {
+        border-color: #f39c12;
+    }
+
+    .emotion-draggable[data-emotion="joy"]:hover {
+        border-color: #f5b041;
+        box-shadow: 0 5px 20px rgba(243, 156, 18, 0.3);
+    }
+
+    .emotion-draggable[data-emotion="energy"] {
+        border-color: #e74c3c;
+    }
+
+    .emotion-draggable[data-emotion="energy"]:hover {
+        border-color: #ec7063;
+        box-shadow: 0 5px 20px rgba(231, 76, 60, 0.3);
+    }
+
+    .emotion-icon {
+        font-size: 4rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .emotion-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+
+    .emotion-description {
+        font-size: 0.9rem;
+        color: #888;
+    }
+
+    .world-map-container {
+        background: #0a0a0a;
+        border: 3px solid #333;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+        min-height: 500px;
+    }
+
+    .world-map-svg {
+        width: 100%;
+        height: 100%;
+    }
+
+    .region {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        stroke: #333;
+        stroke-width: 2;
+        fill: #2a2a2a;
+    }
+
+    .region.drag-over {
+        stroke: #4a9eff;
+        stroke-width: 4;
+        fill: rgba(74, 158, 255, 0.2);
+    }
+
+    .region.fixed {
+        fill: #4CAF50;
+        opacity: 0.8;
+        animation: successGlow 2s ease-in-out infinite;
+    }
+
+    @keyframes successGlow {
+        0%, 100% {
+            box-shadow: 0 0 0 rgba(76, 175, 80, 0);
+        }
+        50% {
+            box-shadow: 0 0 30px rgba(76, 175, 80, 0.6);
+        }
+    }
+
+    .region.incorrect-drop {
+        animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+        20%, 40%, 60%, 80% { transform: translateX(10px); }
+    }
+
+    .region-label {
+        font-size: 14px;
+        fill: #ffffff;
+        font-weight: 600;
+        text-anchor: middle;
+        pointer-events: none;
+    }
+
+    .problem-icon {
+        font-size: 2rem;
+        pointer-events: none;
+    }
+
+    .interaction-counter {
+        text-align: center;
+        margin-bottom: 1rem;
+        color: #888;
+        font-size: 0.9rem;
+    }
+
+    .interaction-counter span {
+        color: #4a9eff;
+        font-weight: 600;
+    }
+
+    .module-actions {
+        text-align: center;
+        margin-top: 2rem;
+    }
+
+    .complete-button {
+        display: inline-block;
+        padding: 1rem 3rem;
+        background: #4CAF50;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .complete-button:hover {
+        background: #45a049;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    .complete-button:disabled {
+        background: #333;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .back-button {
+        display: inline-block;
+        padding: 0.8rem 2rem;
+        color: #ffffff;
+        border: 2px solid #ffffff;
+        text-decoration: none;
+        font-size: 1rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+        margin-left: 1rem;
+    }
+
+    .back-button:hover {
+        background: #ffffff;
+        color: #1a1a1a;
+    }
+
+    .success-message {
+        text-align: center;
+        padding: 2rem;
+        background: rgba(76, 175, 80, 0.1);
+        border: 2px solid #4CAF50;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+
+    .success-message h2 {
+        color: #4CAF50;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .emotion-particles {
+        position: absolute;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    .particle {
+        position: absolute;
+        font-size: 1.5rem;
+        animation: float 2s ease-out forwards;
+    }
+
+    @keyframes float {
+        0% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        100% {
+            opacity: 0;
+            transform: translateY(-100px) scale(1.5);
+        }
+    }
+
+    .flash-red {
+        animation: flashRed 0.5s ease-in-out;
+    }
+
+    @keyframes flashRed {
+        0%, 100% {
+            filter: brightness(1);
+        }
+        50% {
+            filter: brightness(1.5) hue-rotate(0deg);
+            stroke: #e74c3c;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="emotion-module-container">
+    <div class="emotion-module-header">
+        <h1>💚 Emotion Stabilizer</h1>
+        <p>Fix problems by dragging the correct emotion to each region</p>
+    </div>
+
+    {% if is_completed %}
+    <div class="success-message">
+        <h2>✓ Module Completed!</h2>
+        <p>You've successfully fixed all problems across the world! Every region is now filled with the right emotions!</p>
+    </div>
+    {% else %}
+    <div class="instructions-box">
+        <h3>How to Play</h3>
+        <p>Drag the correct emotion image onto each region to fix its problem. 
+        Each region has a specific problem that needs a specific emotion to fix it!</p>
+    </div>
+
+    <div class="emotions-panel">
+        <h3>Available Emotions - Drag These!</h3>
+        <div class="emotions-grid">
+            <div class="emotion-draggable" draggable="true" data-emotion="joy" id="emotion-joy">
+                <div class="emotion-icon">🎉</div>
+                <div class="emotion-name">Joy</div>
+                <div class="emotion-description">Spread happiness</div>
+            </div>
+            <div class="emotion-draggable" draggable="true" data-emotion="energy" id="emotion-energy">
+                <div class="emotion-icon">⚡</div>
+                <div class="emotion-name">Energy</div>
+                <div class="emotion-description">Boost vitality</div>
+            </div>
+            <div class="emotion-draggable" draggable="true" data-emotion="hope" id="emotion-hope">
+                <div class="emotion-icon">✨</div>
+                <div class="emotion-name">Hope</div>
+                <div class="emotion-description">Inspire optimism</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="interaction-counter">
+        Regions fixed: <span id="regionsCount">0</span>/4
+    </div>
+
+    <div class="world-map-container" id="mapContainer">
+        <div class="emotion-particles" id="particles"></div>
+        <svg class="world-map-svg" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+            <!-- Northern Region - Sad Elf needs Joy -->
+            <g id="region-north-group">
+                <path class="region" id="region-north" d="M 100 50 Q 200 30 300 50 T 500 60 T 700 50 L 700 150 L 100 150 Z" 
+                      data-required-emotion="joy"/>
+                <text class="region-label" x="400" y="80">Northern Region</text>
+                <text class="problem-icon" x="400" y="120" text-anchor="middle">😢</text>
+                <text class="problem-label" x="400" y="140" font-size="12px" fill="#ff6b6b">Sad Elf</text>
+            </g>
+
+            <!-- Southern Region - Slow Reindeer needs Energy -->
+            <g id="region-south-group">
+                <path class="region" id="region-south" d="M 100 150 Q 200 170 300 150 T 500 140 T 700 150 L 700 250 L 100 250 Z" 
+                      data-required-emotion="energy"/>
+                <text class="region-label" x="400" y="180">Southern Region</text>
+                <text class="problem-icon" x="400" y="220" text-anchor="middle">🦌</text>
+                <text class="problem-label" x="400" y="240" font-size="12px" fill="#ff6b6b">Slow Reindeer</text>
+            </g>
+
+            <!-- Eastern Region - Broken Toy needs Hope -->
+            <g id="region-east-group">
+                <path class="region" id="region-east" d="M 100 250 Q 200 270 300 250 T 500 240 T 700 250 L 700 350 L 100 350 Z" 
+                      data-required-emotion="hope"/>
+                <text class="region-label" x="400" y="280">Eastern Region</text>
+                <text class="problem-icon" x="400" y="320" text-anchor="middle">🧸</text>
+                <text class="problem-label" x="400" y="340" font-size="12px" fill="#ff6b6b">Broken Toy</text>
+            </g>
+
+            <!-- Western Region - Cold Heart needs Joy -->
+            <g id="region-west-group">
+                <path class="region" id="region-west" d="M 50 100 Q 80 120 50 200 Q 80 280 50 300 L 100 300 L 100 100 Z" 
+                      data-required-emotion="joy"/>
+                <text class="region-label" x="75" y="180">Western Region</text>
+                <text class="problem-icon" x="75" y="220" text-anchor="middle">❄️</text>
+                <text class="problem-label" x="75" y="240" font-size="12px" fill="#ff6b6b">Cold Heart</text>
+            </g>
+        </svg>
+    </div>
+
+    <form method="POST" action="{{ url_for('complete_emotion') }}" id="completeForm" style="display: none;">
+        <button type="submit" class="complete-button" id="completeButton">Complete Module</button>
+    </form>
+
+    <div class="module-actions">
+        <a href="{{ url_for('map') }}" class="back-button">Back to Control Room</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    {% if not is_completed %}
+    let fixedRegions = new Set();
+    const emotionIcons = {
+        'hope': '✨',
+        'joy': '🎉',
+        'energy': '⚡'
+    };
+
+    // Drag and drop functionality
+    const draggableEmotions = document.querySelectorAll('.emotion-draggable');
+    const regions = document.querySelectorAll('.region');
+
+    draggableEmotions.forEach(emotion => {
+        emotion.addEventListener('dragstart', handleDragStart);
+        emotion.addEventListener('dragend', handleDragEnd);
+    });
+
+    regions.forEach(region => {
+        region.addEventListener('dragover', handleDragOver);
+        region.addEventListener('drop', handleDrop);
+        region.addEventListener('dragenter', handleDragEnter);
+        region.addEventListener('dragleave', handleDragLeave);
+    });
+
+    let draggedEmotion = null;
+
+    function handleDragStart(e) {
+        draggedEmotion = this;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.outerHTML);
+    }
+
+    function handleDragEnd(e) {
+        this.classList.remove('dragging');
+        regions.forEach(region => {
+            region.classList.remove('drag-over');
+        });
+    }
+
+    function handleDragOver(e) {
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+    }
+
+    function handleDragEnter(e) {
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+        this.classList.add('drag-over');
+        return false;
+    }
+
+    function handleDragLeave(e) {
+        this.classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+        if (e.stopPropagation) {
+            e.stopPropagation();
+        }
+
+        this.classList.remove('drag-over');
+
+        if (!draggedEmotion) {
+            return false;
+        }
+
+        const droppedEmotion = draggedEmotion.getAttribute('data-emotion');
+        const requiredEmotion = this.getAttribute('data-required-emotion');
+        const regionId = this.getAttribute('id');
+
+        // Check if this region is already fixed
+        if (fixedRegions.has(regionId)) {
+            return false;
+        }
+
+        // Check if correct emotion
+        if (droppedEmotion === requiredEmotion) {
+            // Correct drop!
+            this.classList.add('fixed');
+            fixedRegions.add(regionId);
+            updateRegionsCount();
+
+            // Update problem icon to show it's fixed
+            const regionGroup = this.parentElement;
+            if (regionGroup && regionGroup.tagName === 'g') {
+                const problemIcon = regionGroup.querySelector('.problem-icon');
+                if (problemIcon) {
+                    // Change to happy/fixed icon based on problem
+                    if (regionId === 'region-north') {
+                        problemIcon.textContent = '😊'; // Happy elf
+                    } else if (regionId === 'region-south') {
+                        problemIcon.textContent = '🦌✨'; // Energetic reindeer
+                    } else if (regionId === 'region-east') {
+                        problemIcon.textContent = '🧸✨'; // Fixed toy
+                    } else if (regionId === 'region-west') {
+                        problemIcon.textContent = '❤️'; // Warm heart
+                    }
+                }
+                const problemLabel = regionGroup.querySelector('.problem-label');
+                if (problemLabel) {
+                    problemLabel.textContent = 'Fixed!';
+                    problemLabel.setAttribute('fill', '#4CAF50');
+                }
+            }
+
+            // Create success particles
+            createSuccessParticles(this);
+
+            // Check if all regions are fixed
+            if (fixedRegions.size >= 4) {
+                setTimeout(() => {
+                    document.getElementById('completeForm').style.display = 'inline-block';
+                    document.getElementById('completeButton').disabled = false;
+                }, 500);
+            }
+        } else {
+            // Incorrect drop - show hint animation
+            this.classList.add('incorrect-drop');
+            this.classList.add('flash-red');
+            
+            setTimeout(() => {
+                this.classList.remove('incorrect-drop');
+                this.classList.remove('flash-red');
+            }, 500);
+        }
+
+        return false;
+    }
+
+    function createSuccessParticles(region) {
+        const mapContainer = document.getElementById('mapContainer');
+        const particlesContainer = document.getElementById('particles');
+        const svg = mapContainer.querySelector('svg');
+        const containerRect = mapContainer.getBoundingClientRect();
+        
+        // Get center of region
+        const bbox = region.getBBox();
+        const svgPoint = svg.createSVGPoint();
+        svgPoint.x = bbox.x + bbox.width / 2;
+        svgPoint.y = bbox.y + bbox.height / 2;
+        const screenPoint = svgPoint.matrixTransform(svg.getScreenCTM());
+        
+        const x = screenPoint.x - containerRect.left;
+        const y = screenPoint.y - containerRect.top;
+
+        // Create multiple particles
+        const emotion = region.getAttribute('data-required-emotion');
+        for (let i = 0; i < 8; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.textContent = emotionIcons[emotion] || '✨';
+            particle.style.left = (x + (Math.random() - 0.5) * 60) + 'px';
+            particle.style.top = (y + (Math.random() - 0.5) * 60) + 'px';
+            particle.style.animationDelay = (i * 0.1) + 's';
+            particlesContainer.appendChild(particle);
+
+            // Remove particle after animation
+            setTimeout(() => {
+                if (particle.parentNode) {
+                    particle.remove();
+                }
+            }, 2000);
+        }
+    }
+
+    function updateRegionsCount() {
+        document.getElementById('regionsCount').textContent = fixedRegions.size;
+    }
+    {% endif %}
+</script>
+{% endblock %}

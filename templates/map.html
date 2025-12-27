@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block progress_bar %}
+<div class="progress-display">
+    <span class="progress-label">Progress:</span>
+    <span class="progress-percentage">{{ progress }}%</span>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="control-room">
+    <div class="modules-grid">
+        <a href="{{ url_for('elf_module') }}" class="module-card {% if modules_completed.elf %}completed{% else %}available{% endif %}">
+            <div class="module-icon">🔧</div>
+            <div class="module-name">Elf Crisis</div>
+            <div class="module-status">
+                {% if modules_completed.elf %}
+                    <span class="status-completed">✓ Completed</span>
+                {% else %}
+                    <span class="status-available">Available</span>
+                {% endif %}
+            </div>
+        </a>
+        
+        <a href="{{ url_for('reindeer_module') }}" class="module-card {% if modules_completed.reindeer %}completed{% else %}available{% endif %}">
+            <div class="module-icon">🦌</div>
+            <div class="module-name">Reindeer Navigation</div>
+            <div class="module-status">
+                {% if modules_completed.reindeer %}
+                    <span class="status-completed">✓ Completed</span>
+                {% else %}
+                    <span class="status-available">Available</span>
+                {% endif %}
+            </div>
+        </a>
+        
+        <a href="{{ url_for('ethics_module') }}" class="module-card {% if modules_completed.ethics %}completed{% else %}available{% endif %}">
+            <div class="module-icon">🎁</div>
+            <div class="module-name">Gift Ethics</div>
+            <div class="module-status">
+                {% if modules_completed.ethics %}
+                    <span class="status-completed">✓ Completed</span>
+                {% else %}
+                    <span class="status-available">Available</span>
+                {% endif %}
+            </div>
+        </a>
+        
+        <a href="{{ url_for('emotion_module') }}" class="module-card {% if modules_completed.emotion %}completed{% else %}available{% endif %}">
+            <div class="module-icon">💚</div>
+            <div class="module-name">Emotion Stabilizer</div>
+            <div class="module-status">
+                {% if modules_completed.emotion %}
+                    <span class="status-completed">✓ Completed</span>
+                {% else %}
+                    <span class="status-available">Available</span>
+                {% endif %}
+            </div>
+        </a>
+    </div>
+    
+    {% if progress == 100 %}
+    <div class="finale-access">
+        <a href="{{ url_for('finale') }}" class="finale-button">🎄 Access Finale 🎄</a>
+        <a href="{{ url_for('reset') }}" class="replay-button">🔄 Replay Game</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Show welcome message on first visit or when progress is low
+    document.addEventListener('DOMContentLoaded', function() {
+        const progress = {{ progress }};
+        
+        if (progress === 0) {
+            setTimeout(() => {
+                if (typeof showCharacterMessage === 'function') {
+                    showCharacterMessage('santa');
+                }
+            }, 1000);
+        } else if (progress < 100 && progress > 0) {
+            // Show occasional encouragement
+            const messages = ['santa', 'elf', 'reindeer'];
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            setTimeout(() => {
+                if (typeof showCharacterMessage === 'function') {
+                    showCharacterMessage(randomMessage);
+                }
+            }, 2000);
+        }
+    });
+</script>
+{% endblock %}
+

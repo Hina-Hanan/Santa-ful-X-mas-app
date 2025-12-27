@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .app-container {
+        margin: 0;
+        padding: 0;
+    }
+
+    .main-content-area {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .intro-container {
+        background-image: url("{{ url_for('static', filename='assets/images/bg.jpg') }}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
+    }
+
+    .intro-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.1);
+        z-index: 1;
+    }
+
+    .intro-content {
+        position: relative;
+        z-index: 4;
+        text-align: center;
+    }
+
+    .intro-title {
+        font-family: 'Great Vibes', 'Dancing Script', cursive;
+        color: #000000;
+        font-size: 4.5rem;
+        font-weight: 400;
+        letter-spacing: 0.05em;
+        margin-bottom: 3rem;
+        text-transform: none;
+        text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+    }
+
+    .enter-button {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #000000;
+        border: 2px solid #000000;
+        font-size: 1rem;
+        padding: 0.8rem 2rem;
+        background: transparent;
+        font-weight: normal;
+        text-decoration: none;
+        display: inline-block;
+        transition: font-weight 0.3s ease;
+    }
+
+    .enter-button:hover {
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="intro-container">
+    <div class="intro-content">
+        <h1 class="intro-title">Christmas Delivery Incomplete</h1>
+        <a href="{{ url_for('map') }}" class="enter-button">Enter Control Room</a>
+    </div>
+</div>
+{% endblock %}
+
