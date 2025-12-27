@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block progress_bar %}
+<div class="progress-display">
+    <span class="progress-label">Progress:</span>
+    <span class="progress-percentage">{{ progress }}%</span>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+    body {
+        overflow-y: auto;
+        background: linear-gradient(135deg, #f5e6d3 0%, #e8d5b7 50%, #f5e6d3 100%);
+        min-height: 100vh;
+    }
+
+    .reply-container {
+        width: 100%;
+        min-height: 100vh;
+        padding: 3rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .letter-wrapper {
+        max-width: 800px;
+        width: 100%;
+        background: #faf5ed;
+        border-radius: 15px;
+        padding: 4rem 3rem;
+        box-shadow: 0 15px 50px rgba(139, 69, 19, 0.3);
+        border: 3px solid rgba(139, 69, 19, 0.2);
+        animation: fadeInUp 1.5s ease-out;
+        position: relative;
+    }
+
+    @keyframes fadeInUp {
+        0% {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Parchment texture */
+    .letter-wrapper::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: 
+            repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(139, 69, 19, 0.03) 2px,
+                rgba(139, 69, 19, 0.03) 4px
+            );
+        pointer-events: none;
+        border-radius: 15px;
+    }
+
+    .letter-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .santa-image {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 1.5rem;
+        background-image: url("{{ url_for('static', filename='assets/images/santa2.jpg') }}");
+        background-size: cover;
+        background-position: center;
+        border-radius: 50%;
+        border: 5px solid rgba(139, 69, 19, 0.3);
+        box-shadow: 0 8px 25px rgba(139, 69, 19, 0.3);
+        animation: gentlePulse 4s ease-in-out infinite;
+    }
+
+    @keyframes gentlePulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+    }
+
+    .letter-title {
+        font-family: 'Dancing Script', cursive;
+        font-size: 2.5rem;
+        color: #8b4513;
+        margin-bottom: 0.5rem;
+    }
+
+    .letter-date {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1rem;
+        color: #8b7355;
+        font-style: italic;
+    }
+
+    .letter-content {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.3rem;
+        line-height: 2;
+        color: #4a3728;
+        white-space: pre-line;
+        margin-bottom: 2rem;
+        position: relative;
+        z-index: 1;
+        animation: fadeIn 2s ease-out 0.5s both;
+    }
+
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    .letter-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 3rem;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 1;
+    }
+
+    .action-button {
+        padding: 1rem 2rem;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.1rem;
+        color: #8b4513;
+        background: rgba(255, 255, 255, 0.8);
+        border: 2px solid #8b4513;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        font-weight: 500;
+        box-shadow: 0 4px 15px rgba(139, 69, 19, 0.2);
+    }
+
+    .action-button:hover {
+        background: #8b4513;
+        color: #f5e6d3;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(139, 69, 19, 0.4);
+    }
+
+    .action-button.primary {
+        background: #8b4513;
+        color: #f5e6d3;
+    }
+
+    .action-button.primary:hover {
+        background: #6b3410;
+        border-color: #6b3410;
+    }
+
+    .audio-button {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .audio-icon {
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+    }
+
+    @media (max-width: 768px) {
+        .letter-wrapper {
+            padding: 2.5rem 2rem;
+        }
+
+        .letter-title {
+            font-size: 2rem;
+        }
+
+        .letter-content {
+            font-size: 1.1rem;
+        }
+
+        .santa-image {
+            width: 100px;
+            height: 100px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reply-container">
+    <div class="letter-wrapper">
+        <div class="letter-header">
+            <div class="santa-image"></div>
+            <h1 class="letter-title">A Letter from Santa</h1>
+            <p class="letter-date">December 2024, North Pole</p>
+        </div>
+
+        <div class="letter-content">{{ santa_reply }}</div>
+
+        <div class="letter-actions">
+            <button class="action-button audio-button" id="audioButton" onclick="playAudio()">
+                <span class="audio-icon">🔊</span>
+                Hear Santa Read This
+            </button>
+            <a href="{{ url_for('christmas_card') }}" class="action-button primary">View Your Christmas Card →</a>
+            <a href="{{ url_for('letter_intro') }}" class="action-button">← Back</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let audioPlaying = false;
+    let audioElement = null;
+    
+    // Store the reply text from the page content
+    const replyText = document.querySelector('.letter-content').textContent.trim();
+
+    function playAudio() {
+        const button = document.getElementById('audioButton');
+        
+        if (!audioPlaying) {
+            // For now, we'll use text-to-speech if available
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(replyText);
+                utterance.rate = 0.9;
+                utterance.pitch = 0.8;
+                utterance.volume = 0.8;
+                
+                // Try to find a deeper voice
+                const voices = speechSynthesis.getVoices();
+                const maleVoice = voices.find(voice => 
+                    voice.name.toLowerCase().includes('male') || 
+                    voice.name.toLowerCase().includes('david') ||
+                    voice.name.toLowerCase().includes('daniel')
+                );
+                if (maleVoice) {
+                    utterance.voice = maleVoice;
+                }
+                
+                utterance.onend = function() {
+                    audioPlaying = false;
+                    button.innerHTML = '<span class="audio-icon">🔊</span> Hear Santa Read This';
+                };
+                
+                speechSynthesis.speak(utterance);
+                audioPlaying = true;
+                button.innerHTML = '<span class="audio-icon">⏸</span> Pause Reading';
+            } else {
+                alert('Audio playback is not supported in your browser. Please read the letter manually.');
+            }
+        } else {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+                audioPlaying = false;
+                button.innerHTML = '<span class="audio-icon">🔊</span> Hear Santa Read This';
+            }
+        }
+    }
+
+    // Load voices when page loads
+    if ('speechSynthesis' in window) {
+        speechSynthesis.getVoices();
+        window.addEventListener('voiceschanged', () => {
+            speechSynthesis.getVoices();
+        });
+    }
+</script>
+{% endblock %}
+

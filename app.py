@@ -1,4 +1,6 @@
 from flask import Flask, render_template, session, redirect, url_for, request
+from modules.letter_logic import initialize_letter_session, save_letter_data, get_letter_data, has_submitted_letter
+from modules.santa_reply_generator import generate_santa_reply
 
 app = Flask(__name__)
 app.secret_key = 'santa-secret-key-change-in-production'  # Change this in production
@@ -78,8 +80,8 @@ def all_modules_complete():
 
 def is_module_accessible(module_name):
     """
-    Check if a module is accessible (all modules are accessible by default).
-    This function can be extended for sequential unlocking if needed.
+    Check if a module is accessible based on sequential unlocking.
+    Modules unlock in order: elf -> reindeer -> ethics -> emotion
     
     Args:
         module_name: Short name of the module ('elf', 'reindeer', 'ethics', 'emotion')
@@ -88,9 +90,26 @@ def is_module_accessible(module_name):
         bool: True if module is accessible, False otherwise
     """
     initialize_modules()
-    # All modules are accessible from the start
-    # Can be modified to implement sequential unlocking
-    return module_name in session['modules_completed']
+    
+    # Define the order of modules
+    module_order = ['elf', 'reindeer', 'ethics', 'emotion']
+    
+    # First module (elf) is always accessible
+    if module_name == 'elf':
+        return True
+    
+    # Find the index of the requested module
+    try:
+        module_index = module_order.index(module_name)
+    except ValueError:
+        return False
+    
+    # Check if previous module is completed
+    if module_index > 0:
+        previous_module = module_order[module_index - 1]
+        return session['modules_completed'].get(previous_module, False)
+    
+    return False
 
 @app.route('/')
 def index():
@@ -104,7 +123,18 @@ def map():
     # Get completion status for template
     modules_completed = session['modules_completed']
     
-    return render_template('map.html', progress=progress, modules_completed=modules_completed)
+    # Get accessibility status for each module
+    modules_accessible = {
+        'elf': is_module_accessible('elf'),
+        'reindeer': is_module_accessible('reindeer'),
+        'ethics': is_module_accessible('ethics'),
+        'emotion': is_module_accessible('emotion')
+    }
+    
+    return render_template('map.html', 
+                         progress=progress, 
+                         modules_completed=modules_completed,
+                         modules_accessible=modules_accessible)
 
 @app.route('/module/<module_name>')
 def module(module_name):
@@ -262,6 +292,132 @@ def reset():
     }
     session.modified = True
     return redirect(url_for('index'))
+
+# Letter to Santa routes
+@app.route('/letter-to-santa')
+def letter_intro():
+    """Letter to Santa introduction - only accessible if all modules are complete."""
+    initialize_modules()
+    
+    # Guard: Letter feature is locked until all modules are completed
+    if not all_modules_complete():
+        return redirect(url_for('map'))
+    
+    progress = get_progress()
+    return render_template('letter_intro.html', progress=progress)
+
+@app.route('/letter-to-santa/form')
+def letter_form():
+    """Letter form page - only accessible if all modules are complete."""
+    initialize_modules()
+    
+    # Guard: Letter feature is locked until all modules are completed
+    if not all_modules_complete():
+        return redirect(url_for('map'))
+    
+    initialize_letter_session(session)
+    progress = get_progress()
+    
+    # If already submitted, redirect to reply
+    if has_submitted_letter(session):
+        return redirect(url_for('santa_reply'))
+    
+    return render_template('letter_form.html', progress=progress)
+
+@app.route('/letter-to-santa/submit', methods=['POST'])
+def submit_letter():
+    """Process letter form submission."""
+    initialize_modules()
+    
+    # Guard: Letter feature is locked until all modules are completed
+    if not all_modules_complete():
+        return redirect(url_for('map'))
+    
+    # Save form data to session
+    form_data = {
+        'name': request.form.get('name', ''),
+        'age': request.form.get('age', ''),
+        'gender': request.form.get('gender', ''),
+        'country': request.form.get('country', ''),
+        'feeling': request.form.get('feeling', ''),
+        'wish': request.form.get('wish', ''),
+        'memory': request.form.get('memory', '')
+    }
+    
+    # Validate required fields
+    if not form_data['name'] or not form_data['feeling'] or not form_data['wish'] or not form_data['memory']:
+        # Redirect back to form if required fields are missing
+        return redirect(url_for('letter_form'))
+    
+    save_letter_data(session, form_data)
+    
+    # Generate Santa's reply and store in session
+    letter_data = get_letter_data(session)
+    santa_reply = generate_santa_reply(letter_data)
+    session['santa_reply'] = santa_reply
+    session.modified = True
+    
+    return redirect(url_for('santa_reply'))
+
+@app.route('/letter-to-santa/reply')
+def santa_reply():
+    """Display Santa's personalized reply."""
+    initialize_modules()
+    
+    # Guard: Letter feature is locked until all modules are completed
+    if not all_modules_complete():
+        return redirect(url_for('map'))
+    
+    initialize_letter_session(session)
+    
+    # Check if letter has been submitted
+    if not has_submitted_letter(session):
+        return redirect(url_for('letter_form'))
+    
+    letter_data = get_letter_data(session)
+    santa_reply = session.get('santa_reply', '')
+    
+    # If reply doesn't exist, generate it
+    if not santa_reply:
+        santa_reply = generate_santa_reply(letter_data)
+        session['santa_reply'] = santa_reply
+        session.modified = True
+    
+    progress = get_progress()
+    return render_template('santa_reply.html', 
+                         santa_reply=santa_reply, 
+                         letter_data=letter_data,
+                         progress=progress)
+
+@app.route('/letter-to-santa/card')
+def christmas_card():
+    """Display final personalized Christmas card."""
+    initialize_modules()
+    
+    # Guard: Letter feature is locked until all modules are completed
+    if not all_modules_complete():
+        return redirect(url_for('map'))
+    
+    initialize_letter_session(session)
+    
+    # Check if letter has been submitted
+    if not has_submitted_letter(session):
+        return redirect(url_for('letter_form'))
+    
+    letter_data = get_letter_data(session)
+    santa_reply = session.get('santa_reply', '')
+    
+    # If reply doesn't exist, generate it
+    if not santa_reply:
+        santa_reply = generate_santa_reply(letter_data)
+        session['santa_reply'] = santa_reply
+        session.modified = True
+    
+    progress = get_progress()
+    return render_template('christmas_card.html', 
+                         santa_reply=santa_reply, 
+                         letter_data=letter_data,
+                         progress=progress)
 
 if __name__ == '__main__':
     app.run(debug=True)

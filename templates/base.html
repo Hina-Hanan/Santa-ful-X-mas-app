@@ -75,13 +75,9 @@
     <div class="snowflakes-container" id="snowflakesContainer"></div>
     
     <div class="app-container">
-        <!-- Top Progress Bar -->
-        <div class="progress-bar-container">
-            {% block progress_bar %}{% endblock %}
-        </div>
-        
         <!-- Main Content Area -->
         <div class="main-content-area">
+            {% block progress_bar %}{% endblock %}
             {% block content %}{% endblock %}
         </div>
     </div>

@@ -8,12 +8,56 @@
 {% endblock %}
 
 {% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka+One&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
 <style>
+    :root {
+        --deep-burgundy: #2a0a0a;
+        --evergreen: #013220;
+        --evergreen-light: #025235;
+        --gold: #d4af37;
+        --gold-bright: #ffdf00;
+        --white: #ffffff;
+        --glass: rgba(255, 255, 255, 0.1);
+        --glass-border: rgba(255, 255, 255, 0.2);
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background: radial-gradient(circle at center, #3d0000 0%, var(--deep-burgundy) 100%);
+        min-height: 100vh;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* Playful bold cartoon font for headings/titles only */
+    h1, h2, h3, .elf-module-header h1, .scenario-box h2, .success-message h2 {
+        font-family: 'Bangers', 'Fredoka One', 'Nunito', 'Comic Sans MS', 'Impact', 'Arial Black', sans-serif;
+        font-weight: 900;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    /* Fixed Background Layer for Vignette */
+    .vignette-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        pointer-events: none;
+        background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.6) 100%);
+    }
+
     .elf-module-container {
         padding: 2rem;
         max-width: 1200px;
         margin: 0 auto;
         color: #ffffff;
+        position: relative;
+        z-index: 2;
     }
 
     .elf-module-header {
@@ -265,10 +309,110 @@
         font-size: 2rem;
         margin-bottom: 1rem;
     }
+
+    /* Mobile and Touch Support */
+    .spare-part.selected {
+        border-color: #4CAF50;
+        background: rgba(76, 175, 80, 0.2);
+        transform: scale(1.1);
+        box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+    }
+
+    .drop-zone.ready-for-drop {
+        border-color: #4CAF50;
+        background: rgba(76, 175, 80, 0.2);
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+        }
+        50% {
+            box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .elf-module-container {
+            padding: 1rem;
+        }
+
+        .elf-module-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .toys-container {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .broken-toy {
+            min-height: 180px;
+            padding: 1rem;
+        }
+
+        .toy-icon {
+            font-size: 3rem;
+        }
+
+        .drop-zone {
+            height: 70px;
+            min-height: 70px;
+            touch-action: none;
+        }
+
+        .parts-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .spare-part {
+            padding: 1.5rem 0.75rem;
+            min-height: 100px;
+            touch-action: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .part-icon {
+            font-size: 2rem;
+        }
+
+        .part-name {
+            font-size: 0.75rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .elf-module-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .parts-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .spare-part {
+            padding: 1.25rem 0.5rem;
+            min-height: 90px;
+        }
+
+        .drop-zone {
+            height: 60px;
+            min-height: 60px;
+        }
+
+        .drop-zone-text {
+            font-size: 0.8rem;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
+<div class="vignette-overlay"></div>
 <div class="elf-module-container">
     <div class="elf-module-header">
         <h1>🔧 Elf Crisis: Toy Repair Station</h1>
@@ -284,35 +428,13 @@
     <div class="game-status" id="gameStatus">
         <div>Fix all 3 toys to complete the module</div>
         <div class="attempts-counter">Toys Fixed: <span id="fixedCount">0</span>/3</div>
+        <div id="mobileInstructions" style="display: none; margin-top: 0.5rem; font-size: 0.85rem; color: #4a9eff;">
+            📱 Tap a part to select it, then tap a drop zone to place it
+        </div>
     </div>
 
-    <div class="toys-container">
-        <div class="broken-toy" data-toy="robot" data-part="gear">
-            <div class="toy-icon">🤖</div>
-            <div class="toy-name">Broken Robot</div>
-            <div class="toy-status">Missing: Gear</div>
-            <div class="drop-zone" data-toy="robot">
-                <div class="drop-zone-text">Drop ⚙️ here</div>
-            </div>
-        </div>
-
-        <div class="broken-toy" data-toy="car" data-part="wheel">
-            <div class="toy-icon">🚗</div>
-            <div class="toy-name">Broken Car</div>
-            <div class="toy-status">Missing: Wheel</div>
-            <div class="drop-zone" data-toy="car">
-                <div class="drop-zone-text">Drop 🛞 here</div>
-            </div>
-        </div>
-
-        <div class="broken-toy" data-toy="doll" data-part="button">
-            <div class="toy-icon">🧸</div>
-            <div class="toy-name">Broken Doll</div>
-            <div class="toy-status">Missing: Button</div>
-            <div class="drop-zone" data-toy="doll">
-                <div class="drop-zone-text">Drop 🔘 here</div>
-            </div>
-        </div>
+    <div class="toys-container" id="toysContainer">
+        <!-- Toys will be dynamically generated here -->
     </div>
 
     <div class="parts-container">
@@ -338,6 +460,18 @@
                 <div class="part-icon">🔋</div>
                 <div class="part-name">Battery</div>
             </div>
+            <div class="spare-part" draggable="true" data-part="eye" data-part-icon="👁️">
+                <div class="part-icon">👁️</div>
+                <div class="part-name">Eye</div>
+            </div>
+            <div class="spare-part" draggable="true" data-part="piece" data-part-icon="🧩">
+                <div class="part-icon">🧩</div>
+                <div class="part-name">Piece</div>
+            </div>
+            <div class="spare-part" draggable="true" data-part="string" data-part-icon="🧵">
+                <div class="part-icon">🧵</div>
+                <div class="part-name">String</div>
+            </div>
         </div>
     </div>
 
@@ -357,18 +491,132 @@
     (function() {
         let fixedCount = 0;
         const totalToys = 3;
-        const toyParts = {
-            'robot': 'gear',
-            'car': 'wheel',
-            'doll': 'button'
-        };
+        
+        // All available toys (8 total)
+        const allToys = [
+            {
+                id: 'robot',
+                icon: '🤖',
+                name: 'Broken Robot',
+                part: 'gear',
+                partIcon: '⚙️',
+                partName: 'Gear'
+            },
+            {
+                id: 'car',
+                icon: '🚗',
+                name: 'Broken Car',
+                part: 'wheel',
+                partIcon: '🛞',
+                partName: 'Wheel'
+            },
+            {
+                id: 'doll',
+                icon: '🧸',
+                name: 'Broken Doll',
+                part: 'button',
+                partIcon: '🔘',
+                partName: 'Button'
+            },
+            {
+                id: 'train',
+                icon: '🚂',
+                name: 'Broken Train',
+                part: 'spring',
+                partIcon: '🪀',
+                partName: 'Spring'
+            },
+            {
+                id: 'plane',
+                icon: '✈️',
+                name: 'Broken Plane',
+                part: 'battery',
+                partIcon: '🔋',
+                partName: 'Battery'
+            },
+            {
+                id: 'teddy',
+                icon: '🧸',
+                name: 'Broken Teddy',
+                part: 'eye',
+                partIcon: '👁️',
+                partName: 'Eye'
+            },
+            {
+                id: 'puzzle',
+                icon: '🧩',
+                name: 'Broken Puzzle',
+                part: 'piece',
+                partIcon: '🧩',
+                partName: 'Piece'
+            },
+            {
+                id: 'ball',
+                icon: '⚽',
+                name: 'Broken Ball',
+                part: 'string',
+                partIcon: '🧵',
+                partName: 'String'
+            }
+        ];
+
+        // Randomly select 3 toys
+        function getRandomToys(count) {
+            const shuffled = [...allToys].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        const selectedToys = getRandomToys(3);
+        
+        // Build toyParts object from selected toys
+        const toyParts = {};
+        selectedToys.forEach(toy => {
+            toyParts[toy.id] = toy.part;
+        });
+
+        // Render selected toys
+        function renderToys() {
+            const container = document.getElementById('toysContainer');
+            container.innerHTML = '';
+            
+            selectedToys.forEach(toy => {
+                const toyElement = document.createElement('div');
+                toyElement.className = 'broken-toy';
+                toyElement.setAttribute('data-toy', toy.id);
+                toyElement.setAttribute('data-part', toy.part);
+                toyElement.innerHTML = `
+                    <div class="toy-icon">${toy.icon}</div>
+                    <div class="toy-name">${toy.name}</div>
+                    <div class="toy-status">Missing: ${toy.partName}</div>
+                    <div class="drop-zone" data-toy="${toy.id}">
+                        <div class="drop-zone-text">Drop ${toy.partIcon} here</div>
+                    </div>
+                `;
+                container.appendChild(toyElement);
+            });
+        }
+
+        // Initialize toys
+        renderToys();
 
         // Get all draggable parts
         const parts = document.querySelectorAll('.spare-part');
-        const dropZones = document.querySelectorAll('.drop-zone');
-        const toys = document.querySelectorAll('.broken-toy');
+        let dropZones = document.querySelectorAll('.drop-zone');
+        let toys = document.querySelectorAll('.broken-toy');
 
-        // Drag and drop functionality
+        // Track selected part for touch devices
+        let selectedPart = null;
+        let isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+        // Show mobile instructions if on touch device
+        if (isTouchDevice) {
+            const mobileInstructions = document.getElementById('mobileInstructions');
+            if (mobileInstructions) {
+                mobileInstructions.style.display = 'block';
+            }
+        }
+
+        // Drag and drop functionality for desktop
         parts.forEach(part => {
             part.addEventListener('dragstart', (e) => {
                 e.dataTransfer.setData('text/plain', JSON.stringify({
@@ -378,68 +626,157 @@
             });
         });
 
-        dropZones.forEach(zone => {
-            zone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                if (!zone.classList.contains('filled')) {
-                    zone.classList.add('drag-over');
-                }
+        // Touch support for mobile devices
+        if (isTouchDevice) {
+            parts.forEach(part => {
+                // Prevent default touch behaviors
+                part.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    // Deselect previous part
+                    if (selectedPart && selectedPart !== part) {
+                        selectedPart.classList.remove('selected');
+                    }
+                    // Toggle selection
+                    if (part.classList.contains('used')) {
+                        return; // Can't select used parts
+                    }
+                    if (selectedPart === part) {
+                        part.classList.remove('selected');
+                        selectedPart = null;
+                        dropZones.forEach(zone => zone.classList.remove('ready-for-drop'));
+                    } else {
+                        part.classList.add('selected');
+                        selectedPart = part;
+                        // Highlight available drop zones
+                        dropZones.forEach(zone => {
+                            if (!zone.classList.contains('filled')) {
+                                zone.classList.add('ready-for-drop');
+                            }
+                        });
+                    }
+                }, { passive: false });
+
+                // Prevent scrolling when touching parts
+                part.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                }, { passive: false });
             });
 
-            zone.addEventListener('dragleave', () => {
-                zone.classList.remove('drag-over');
-            });
+        }
 
-            zone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                zone.classList.remove('drag-over');
+        function setupDropZones() {
+            dropZones = document.querySelectorAll('.drop-zone');
+            
+            dropZones.forEach(zone => {
+                // Remove existing listeners by cloning (to avoid duplicates)
+                const newZone = zone.cloneNode(true);
+                zone.parentNode.replaceChild(newZone, zone);
 
-                if (zone.classList.contains('filled')) {
-                    return;
-                }
+                newZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    if (!newZone.classList.contains('filled')) {
+                        newZone.classList.add('drag-over');
+                    }
+                });
 
-                const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-                const toy = zone.closest('.broken-toy');
-                const toyName = toy.dataset.toy;
-                const requiredPart = toy.dataset.part;
+                newZone.addEventListener('dragleave', () => {
+                    newZone.classList.remove('drag-over');
+                });
 
-                // Check if the part matches
-                if (data.part === requiredPart) {
-                    // Correct part!
-                    zone.classList.add('filled');
-                    zone.innerHTML = `<div class="part-placed">${data.icon}</div>`;
-                    toy.classList.add('fixed');
-                    toy.querySelector('.toy-status').textContent = 'Fixed! ✓';
-                    toy.querySelector('.toy-status').style.color = '#4CAF50';
+                newZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    newZone.classList.remove('drag-over');
 
-                    // Mark part as used
-                    const usedPart = document.querySelector(`[data-part="${data.part}"]`);
-                    if (usedPart) {
-                        usedPart.classList.add('used');
-                        usedPart.draggable = false;
+                    if (newZone.classList.contains('filled')) {
+                        return;
                     }
 
-                    fixedCount++;
-                    updateGameStatus();
+                    const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                    handlePartDropData(data, newZone);
+                });
 
-                    if (fixedCount === totalToys) {
-                        // All toys fixed!
-                        document.getElementById('gameStatus').classList.add('completed');
-                        document.getElementById('gameStatus').innerHTML = '<div>🎉 All toys fixed! Module complete!</div>';
-                        document.getElementById('completeForm').style.display = 'inline-block';
-                        document.getElementById('completeButton').disabled = false;
-                    }
-                } else {
-                    // Wrong part - show feedback
-                    zone.style.borderColor = '#ff4444';
-                    zone.style.background = 'rgba(255, 68, 68, 0.1)';
-                    setTimeout(() => {
-                        zone.style.borderColor = '';
-                        zone.style.background = '';
-                    }, 500);
+                // Touch support for drop zones
+                if (isTouchDevice) {
+                    newZone.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        if (selectedPart && !newZone.classList.contains('filled')) {
+                            handlePartDrop(selectedPart, newZone);
+                        }
+                    }, { passive: false });
                 }
             });
-        });
+        }
+
+        // Setup drop zones after rendering
+        setupDropZones();
+
+        // Shared function to handle part drop (for both drag and touch)
+        function handlePartDrop(partElement, zone) {
+            if (!partElement || zone.classList.contains('filled')) {
+                return;
+            }
+
+            const data = {
+                part: partElement.dataset.part,
+                icon: partElement.dataset.partIcon
+            };
+
+            handlePartDropData(data, zone, partElement);
+        }
+
+        function handlePartDropData(data, zone, partElement = null) {
+            if (zone.classList.contains('filled')) {
+                return;
+            }
+
+            const toy = zone.closest('.broken-toy');
+            const toyName = toy.dataset.toy;
+            const requiredPart = toy.dataset.part;
+
+            // Check if the part matches
+            if (data.part === requiredPart) {
+                // Correct part!
+                zone.classList.add('filled');
+                zone.classList.remove('ready-for-drop');
+                zone.innerHTML = `<div class="part-placed">${data.icon}</div>`;
+                toy.classList.add('fixed');
+                toy.querySelector('.toy-status').textContent = 'Fixed! ✓';
+                toy.querySelector('.toy-status').style.color = '#4CAF50';
+
+                // Mark part as used
+                const usedPart = partElement || document.querySelector(`[data-part="${data.part}"]`);
+                if (usedPart) {
+                    usedPart.classList.add('used');
+                    usedPart.classList.remove('selected');
+                    usedPart.draggable = false;
+                }
+
+                // Clear selection for touch devices
+                if (selectedPart === usedPart) {
+                    selectedPart = null;
+                }
+                dropZones.forEach(z => z.classList.remove('ready-for-drop'));
+
+                fixedCount++;
+                updateGameStatus();
+
+                if (fixedCount === totalToys) {
+                    // All toys fixed!
+                    document.getElementById('gameStatus').classList.add('completed');
+                    document.getElementById('gameStatus').innerHTML = '<div>🎉 All toys fixed! Module complete!</div>';
+                    document.getElementById('completeForm').style.display = 'inline-block';
+                    document.getElementById('completeButton').disabled = false;
+                }
+            } else {
+                // Wrong part - show feedback
+                zone.style.borderColor = '#ff4444';
+                zone.style.background = 'rgba(255, 68, 68, 0.1)';
+                setTimeout(() => {
+                    zone.style.borderColor = '';
+                    zone.style.background = '';
+                }, 500);
+            }
+        }
 
         function updateGameStatus() {
             document.getElementById('fixedCount').textContent = fixedCount;
@@ -448,4 +785,5 @@
     {% endif %}
 </script>
 {% endblock %}
+
 

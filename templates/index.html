@@ -8,7 +8,7 @@
     body {
         margin: 0;
         padding: 0;
-        overflow: hidden;
+        overflow: hidden !important;
     }
 
     .app-container {
@@ -24,10 +24,7 @@
     }
 
     .intro-container {
-        background-image: url("{{ url_for('static', filename='assets/images/bg.jpg') }}");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
+        background: radial-gradient(circle, #8b0000 0%, #4a0000 70%, #2a0000 100%);
         width: 100vw;
         height: 100vh;
         margin: 0;
@@ -40,59 +37,316 @@
         overflow: hidden;
     }
 
+    /* Remove overlay that might wash out the deep red */
     .intro-container::before {
-        content: '';
+        display: none;
+    }
+
+    /* Corner Decorations */
+    .corner-decoration {
         position: absolute;
+        width: 300px;
+        height: 300px;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .top-left {
         top: 0;
         left: 0;
+        transform: rotate(0deg);
+    }
+
+    .top-right {
+        top: 0;
         right: 0;
+        transform: rotate(90deg);
+    }
+
+    .bottom-right {
         bottom: 0;
-        background: rgba(255, 255, 255, 0.1);
-        z-index: 1;
+        right: 0;
+        transform: rotate(180deg);
+    }
+
+    .bottom-left {
+        bottom: 0;
+        left: 0;
+        transform: rotate(270deg);
     }
 
     .intro-content {
         position: relative;
         z-index: 4;
         text-align: center;
+        max-width: 800px;
     }
 
     .intro-title {
         font-family: 'Great Vibes', 'Dancing Script', cursive;
-        color: #000000;
-        font-size: 4.5rem;
+        color: #ffffff;
+        font-size: 5.5rem;
         font-weight: 400;
         letter-spacing: 0.05em;
-        margin-bottom: 3rem;
+        margin-bottom: 2rem;
         text-transform: none;
-        text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 2px 2px 10px rgba(0, 0, 0, 0.5);
     }
 
     .enter-button {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: #000000;
-        border: 2px solid #000000;
-        font-size: 1rem;
-        padding: 0.8rem 2rem;
-        background: transparent;
-        font-weight: normal;
+        color: #ffffff;
+        font-size: 1.2rem;
+        font-weight: 300;
         text-decoration: none;
         display: inline-block;
-        transition: font-weight 0.3s ease;
+        padding: 12px 35px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 30px;
+        backdrop-filter: blur(5px);
+        transition: all 0.4s ease;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
     }
 
     .enter-button:hover {
-        font-weight: bold;
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.8);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Ensure audio element is completely hidden */
+    #bgAudio {
+        display: none !important;
+        visibility: hidden !important;
+        position: absolute !important;
+        width: 0 !important;
+        height: 0 !important;
+        opacity: 0 !important;
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="intro-container">
+    <!-- Corner Decorations -->
+    <div class="corner-decoration top-left">
+        <svg viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Frosted Pine Needles -->
+            <path d="M0 0C50 20 120 40 180 30" stroke="#f0f8ff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+            <path d="M0 0C40 50 80 130 70 190" stroke="#f0f8ff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+            <path d="M0 0C60 60 140 100 160 160" stroke="#f0f8ff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+            <!-- Detailed needles -->
+            <g opacity="0.6" stroke="#ffffff" stroke-width="1">
+                <path d="M40 10L35 25M60 15L52 32M85 22L75 40M110 30L98 50M140 32L125 55"/>
+                <path d="M10 40L25 35M15 65L32 55M25 90L45 80M35 120L58 105M40 150L65 130"/>
+            </g>
+            <!-- Gold Ornaments -->
+            <circle cx="120" cy="50" r="8" fill="url(#goldGradient)"/>
+            <circle cx="50" cy="120" r="12" fill="url(#goldGradient)"/>
+            <circle cx="150" cy="140" r="6" fill="url(#goldGradient)"/>
+            
+            <defs>
+                <radialGradient id="goldGradient" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(118 48) rotate(45) scale(15)">
+                    <stop offset="0" stop-color="#FFD700"/>
+                    <stop offset="0.5" stop-color="#DAA520"/>
+                    <stop offset="1" stop-color="#8B4513"/>
+                </radialGradient>
+            </defs>
+        </svg>
+    </div>
+    <div class="corner-decoration top-right">
+        <svg viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 0C50 20 120 40 180 30" stroke="#f0f8ff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+            <path d="M0 0C40 50 80 130 70 190" stroke="#f0f8ff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+            <g opacity="0.6" stroke="#ffffff" stroke-width="1">
+                <path d="M40 10L35 25M60 15L52 32M85 22L75 40M10 40L25 35M15 65L32 55M25 90L45 80"/>
+            </g>
+            <circle cx="100" cy="40" r="10" fill="url(#goldGradient2)"/>
+            <circle cx="40" cy="100" r="7" fill="url(#goldGradient2)"/>
+            <defs>
+                <radialGradient id="goldGradient2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(98 38) rotate(45) scale(15)">
+                    <stop offset="0" stop-color="#FFD700"/>
+                    <stop offset="0.5" stop-color="#DAA520"/>
+                    <stop offset="1" stop-color="#8B4513"/>
+                </radialGradient>
+            </defs>
+        </svg>
+    </div>
+    <div class="corner-decoration bottom-right">
+        <svg viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 0C50 20 120 40 180 30" stroke="#f0f8ff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+            <path d="M0 0C40 50 80 130 70 190" stroke="#f0f8ff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+            <g opacity="0.6" stroke="#ffffff" stroke-width="1">
+                <path d="M40 10L35 25M60 15L52 32M85 22L75 40M10 40L25 35M15 65L32 55M25 90L45 80"/>
+            </g>
+            <circle cx="110" cy="60" r="9" fill="url(#goldGradient3)"/>
+            <circle cx="60" cy="110" r="6" fill="url(#goldGradient3)"/>
+            <defs>
+                <radialGradient id="goldGradient3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(108 58) rotate(45) scale(15)">
+                    <stop offset="0" stop-color="#FFD700"/>
+                    <stop offset="0.5" stop-color="#DAA520"/>
+                    <stop offset="1" stop-color="#8B4513"/>
+                </radialGradient>
+            </defs>
+        </svg>
+    </div>
+    <div class="corner-decoration bottom-left">
+        <svg viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 0C50 20 120 40 180 30" stroke="#f0f8ff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+            <path d="M0 0C40 50 80 130 70 190" stroke="#f0f8ff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+            <g opacity="0.6" stroke="#ffffff" stroke-width="1">
+                <path d="M40 10L35 25M60 15L52 32M85 22L75 40M10 40L25 35M15 65L32 55M25 90L45 80"/>
+            </g>
+            <circle cx="90" cy="70" r="11" fill="url(#goldGradient4)"/>
+            <circle cx="70" cy="90" r="5" fill="url(#goldGradient4)"/>
+            <defs>
+                <radialGradient id="goldGradient4" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(88 68) rotate(45) scale(15)">
+                    <stop offset="0" stop-color="#FFD700"/>
+                    <stop offset="0.5" stop-color="#DAA520"/>
+                    <stop offset="1" stop-color="#8B4513"/>
+                </radialGradient>
+            </defs>
+        </svg>
+    </div>
+
     <div class="intro-content">
         <h1 class="intro-title">Christmas Delivery Incomplete</h1>
         <a href="{{ url_for('map') }}" class="enter-button">Enter Control Room</a>
     </div>
 </div>
+
+<!-- Background Audio -->
+<audio id="bgAudio" loop preload="auto" style="display: none;">
+    <source src="{{ url_for('static', filename='assets/audio/bg_song.mp3') }}" type="audio/mpeg">
+</audio>
+
+<script>
+    console.log('=== AUDIO SCRIPT LOADING ===');
+    
+    // Simple, direct audio playback
+    function initBackgroundAudio() {
+        console.log('initBackgroundAudio called');
+        console.log('Document ready state:', document.readyState);
+        
+        const audio = document.getElementById('bgAudio');
+        console.log('Audio element found:', !!audio);
+        
+        if (!audio) {
+            console.error('ERROR: Audio element with id "bgAudio" not found!');
+            return;
+        }
+        
+        const audioUrl = "{{ url_for('static', filename='assets/audio/bg_song.mp3') }}";
+        const sourceElement = audio.querySelector('source');
+        const actualSrc = sourceElement ? sourceElement.src : 'not found';
+        
+        console.log('Audio URL (from template):', audioUrl);
+        console.log('Audio element src (actual):', actualSrc);
+        console.log('Full audio element:', audio.outerHTML);
+        
+        // Test if the file is accessible
+        fetch(audioUrl, { method: 'HEAD' })
+            .then(response => {
+                if (response.ok) {
+                    console.log('✅ Audio file is accessible at:', audioUrl);
+                } else {
+                    console.error('❌ Audio file NOT accessible. Status:', response.status, response.statusText);
+                    console.error('Tried URL:', audioUrl);
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error checking audio file:', error);
+                console.error('Tried URL:', audioUrl);
+            });
+        
+        audio.volume = 0.5;
+        console.log('Audio volume set to:', audio.volume);
+        
+        function playAudio() {
+            // Always try to play - don't check if already played
+            // This ensures audio plays when navigating back to the page
+            console.log('Attempting to play audio...');
+            console.log('Audio readyState:', audio.readyState);
+            console.log('Audio paused:', audio.paused);
+            
+            // If audio is already playing, don't restart it
+            if (!audio.paused) {
+                console.log('Audio is already playing');
+                return;
+            }
+            
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log('✅ SUCCESS: Audio is now playing!');
+                    console.log('Audio volume:', audio.volume);
+                    console.log('Audio paused:', audio.paused);
+                    console.log('Audio duration:', audio.duration);
+                }).catch(error => {
+                    console.warn('⚠️ Autoplay blocked:', error.name, error.message);
+                    console.log('Audio will play on next user interaction');
+                });
+            }
+        }
+        
+        // Try to play when audio can play
+        audio.addEventListener('canplay', function() {
+            console.log('Audio can play event fired');
+            playAudio();
+        });
+        
+        audio.addEventListener('canplaythrough', function() {
+            console.log('Audio can play through event fired');
+            playAudio();
+        });
+        
+        audio.addEventListener('loadeddata', function() {
+            console.log('Audio loadeddata event fired');
+        });
+        
+        audio.addEventListener('error', function(e) {
+            console.error('❌ AUDIO ERROR:', e);
+            console.error('Error details:', audio.error);
+            if (audio.error) {
+                console.error('Error code:', audio.error.code);
+                console.error('Error message:', audio.error.message);
+            }
+            console.error('Audio src:', audio.src);
+            console.error('Audio source element:', audio.querySelector('source')?.src);
+        });
+        
+        // Try to play on any user interaction
+        const events = ['click', 'touchstart', 'mousedown', 'keydown'];
+        events.forEach(eventType => {
+            document.addEventListener(eventType, function() {
+                console.log('User interaction detected:', eventType);
+                playAudio();
+            }, { once: true });
+        });
+        
+        // Try to play after a delay
+        setTimeout(function() {
+            console.log('Timeout: Attempting to play audio');
+            playAudio();
+        }, 1000);
+    }
+    
+    // Run immediately and also on DOM ready
+    console.log('Running initBackgroundAudio immediately');
+    initBackgroundAudio();
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded: Re-running initBackgroundAudio');
+            initBackgroundAudio();
+        });
+    }
+    
+    console.log('=== AUDIO SCRIPT LOADED ===');
+</script>
 {% endblock %}
 

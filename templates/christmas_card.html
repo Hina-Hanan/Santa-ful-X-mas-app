@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+
+{% block progress_bar %}
+<div class="progress-display">
+    <span class="progress-label">Progress:</span>
+    <span class="progress-percentage">{{ progress }}%</span>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+    body {
+        overflow-y: auto;
+        background: linear-gradient(135deg, #2c1810 0%, #3d2415 50%, #2c1810 100%);
+        min-height: 100vh;
+    }
+
+    .card-container {
+        width: 100%;
+        min-height: 100vh;
+        padding: 3rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .christmas-card {
+        max-width: 600px;
+        width: 100%;
+        background: linear-gradient(135deg, #faf5ed 0%, #f5e6d3 100%);
+        border-radius: 20px;
+        padding: 0;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        border: 5px solid rgba(139, 69, 19, 0.3);
+        animation: cardReveal 1.5s ease-out;
+        position: relative;
+        overflow: hidden;
+    }
+
+    @keyframes cardReveal {
+        0% {
+            opacity: 0;
+            transform: scale(0.9) rotateY(-10deg);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1) rotateY(0deg);
+        }
+    }
+
+    /* Card front decorative border */
+    .card-border {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border: 3px solid rgba(139, 69, 19, 0.2);
+        border-radius: 20px;
+        pointer-events: none;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+        padding: 2.5rem 2rem;
+        text-align: center;
+        position: relative;
+    }
+
+    .card-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: 
+            repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255, 255, 255, 0.05) 10px,
+                rgba(255, 255, 255, 0.05) 20px
+            );
+        pointer-events: none;
+    }
+
+    .card-title {
+        font-family: 'Dancing Script', cursive;
+        font-size: 3.5rem;
+        color: #f5e6d3;
+        margin: 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        position: relative;
+        z-index: 1;
+    }
+
+    .card-subtitle {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.2rem;
+        color: #e8d5b7;
+        margin-top: 0.5rem;
+        font-weight: 300;
+        position: relative;
+        z-index: 1;
+    }
+
+    .card-body {
+        padding: 3rem 2.5rem;
+        position: relative;
+    }
+
+    .card-image {
+        width: 180px;
+        height: 180px;
+        margin: 0 auto 2rem;
+        background-image: url("{{ url_for('static', filename='assets/images/santa3.jpg') }}");
+        background-size: cover;
+        background-position: center;
+        border-radius: 50%;
+        border: 6px solid rgba(139, 69, 19, 0.3);
+        box-shadow: 0 10px 30px rgba(139, 69, 19, 0.3);
+        animation: gentleFloat 4s ease-in-out infinite;
+    }
+
+    @keyframes gentleFloat {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    .card-greeting {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.4rem;
+        color: #4a3728;
+        text-align: center;
+        line-height: 1.8;
+        margin-bottom: 2rem;
+        font-weight: 400;
+    }
+
+    .card-name {
+        font-family: 'Dancing Script', cursive;
+        font-size: 2.5rem;
+        color: #8b4513;
+        text-align: center;
+        margin: 1.5rem 0;
+        font-weight: 600;
+    }
+
+    .card-message {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.2rem;
+        color: #6b4423;
+        text-align: center;
+        line-height: 1.8;
+        font-style: italic;
+        margin-top: 2rem;
+    }
+
+    .card-signature {
+        text-align: center;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 2px solid rgba(139, 69, 19, 0.2);
+    }
+
+    .signature-name {
+        font-family: 'Dancing Script', cursive;
+        font-size: 2rem;
+        color: #8b4513;
+        margin-bottom: 0.5rem;
+    }
+
+    .signature-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1rem;
+        color: #8b7355;
+        font-style: italic;
+    }
+
+    .card-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 3rem;
+        padding: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .card-button {
+        padding: 0.9rem 2rem;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.1rem;
+        color: #8b4513;
+        background: rgba(255, 255, 255, 0.8);
+        border: 2px solid #8b4513;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        box-shadow: 0 4px 15px rgba(139, 69, 19, 0.2);
+    }
+
+    .card-button:hover {
+        background: #8b4513;
+        color: #f5e6d3;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(139, 69, 19, 0.4);
+    }
+
+    .card-button.primary {
+        background: #8b4513;
+        color: #f5e6d3;
+    }
+
+    .card-button.primary:hover {
+        background: #6b3410;
+        border-color: #6b3410;
+    }
+
+    /* Snowflakes on card */
+    .card-snowflakes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        overflow: hidden;
+        border-radius: 20px;
+    }
+
+    .snowflake-small {
+        position: absolute;
+        color: rgba(139, 69, 19, 0.1);
+        font-size: 1rem;
+        animation: snowflakeFall 8s linear infinite;
+    }
+
+    @keyframes snowflakeFall {
+        0% {
+            transform: translateY(-20px) translateX(0) rotate(0deg);
+            opacity: 0;
+        }
+        10% {
+            opacity: 0.5;
+        }
+        90% {
+            opacity: 0.5;
+        }
+        100% {
+            transform: translateY(100%) translateX(30px) rotate(360deg);
+            opacity: 0;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .card-title {
+            font-size: 2.5rem;
+        }
+
+        .card-body {
+            padding: 2rem 1.5rem;
+        }
+
+        .card-image {
+            width: 150px;
+            height: 150px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card-container">
+    <div class="christmas-card">
+        <div class="card-border"></div>
+        <div class="card-snowflakes" id="snowflakes"></div>
+
+        <div class="card-header">
+            <h1 class="card-title">Merry Christmas</h1>
+            <p class="card-subtitle">A Special Message for You</p>
+        </div>
+
+        <div class="card-body">
+            <div class="card-image"></div>
+
+            <div class="card-greeting">
+                {% if letter_data.name %}
+                <p>Dear {{ letter_data.name }},</p>
+                {% else %}
+                <p>Dear Friend,</p>
+                {% endif %}
+            </div>
+
+            <div class="card-message">
+                <p>This Christmas, may your heart be filled with joy, your home with warmth, and your days with the magic of the season.</p>
+                <p style="margin-top: 1rem;">You've shown incredible kindness and care, and for that, I am truly grateful.</p>
+            </div>
+
+            <div class="card-signature">
+                <div class="signature-name">Santa Claus</div>
+                <div class="signature-title">North Pole</div>
+            </div>
+        </div>
+
+        <div class="card-actions">
+            <a href="{{ url_for('santa_reply') }}" class="card-button">← Read Full Letter</a>
+            <a href="{{ url_for('finale') }}" class="card-button primary">Return to Finale →</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Create snowflakes on card
+    function createCardSnowflakes() {
+        const container = document.getElementById('snowflakes');
+        const snowflakeCount = 15;
+        const symbols = ['❄', '❅', '❆'];
+        
+        for (let i = 0; i < snowflakeCount; i++) {
+            const snowflake = document.createElement('div');
+            snowflake.className = 'snowflake-small';
+            snowflake.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+            snowflake.style.left = Math.random() * 100 + '%';
+            snowflake.style.animationDuration = (Math.random() * 4 + 6) + 's';
+            snowflake.style.animationDelay = Math.random() * 2 + 's';
+            container.appendChild(snowflake);
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        createCardSnowflakes();
+    });
+</script>
+{% endblock %}
+
+

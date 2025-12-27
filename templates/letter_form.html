@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block progress_bar %}
+<div class="progress-display">
+    <span class="progress-label">Progress:</span>
+    <span class="progress-percentage">{{ progress }}%</span>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+    body {
+        overflow-y: auto;
+        background: linear-gradient(135deg, #f5e6d3 0%, #e8d5b7 50%, #f5e6d3 100%);
+        min-height: 100vh;
+    }
+
+    .letter-form-container {
+        width: 100%;
+        min-height: 100vh;
+        padding: 3rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .form-wrapper {
+        max-width: 700px;
+        width: 100%;
+        background: #faf5ed;
+        border-radius: 15px;
+        padding: 3rem;
+        box-shadow: 0 10px 40px rgba(139, 69, 19, 0.2);
+        border: 2px solid rgba(139, 69, 19, 0.1);
+        animation: fadeInUp 1s ease-out;
+        position: relative;
+    }
+
+    @keyframes fadeInUp {
+        0% {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Parchment texture effect */
+    .form-wrapper::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: 
+            repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(139, 69, 19, 0.03) 2px,
+                rgba(139, 69, 19, 0.03) 4px
+            );
+        pointer-events: none;
+        border-radius: 15px;
+    }
+
+    .form-title {
+        font-family: 'Dancing Script', cursive;
+        font-size: 3rem;
+        color: #8b4513;
+        margin-bottom: 0.5rem;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .form-subtitle {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.2rem;
+        color: #6b4423;
+        text-align: center;
+        margin-bottom: 2.5rem;
+        font-weight: 300;
+        position: relative;
+        z-index: 1;
+    }
+
+    .form-group {
+        margin-bottom: 1.8rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .form-group label {
+        display: block;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.2rem;
+        color: #6b4423;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .form-group label .optional {
+        font-size: 0.9rem;
+        color: #8b7355;
+        font-weight: 300;
+        font-style: italic;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.8rem;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.1rem;
+        color: #4a3728;
+        background: rgba(255, 255, 255, 0.8);
+        border: 2px solid rgba(139, 69, 19, 0.2);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #8b4513;
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+    }
+
+    .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+        font-family: 'Cormorant Garamond', serif;
+        line-height: 1.6;
+    }
+
+    .form-group textarea.large {
+        min-height: 150px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .submit-button {
+        padding: 1rem 2.5rem;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.2rem;
+        color: #f5e6d3;
+        background: #8b4513;
+        border: 2px solid #8b4513;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
+    }
+
+    .submit-button:hover {
+        background: #6b3410;
+        border-color: #6b3410;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(139, 69, 19, 0.4);
+    }
+
+    .back-button {
+        padding: 1rem 2rem;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.1rem;
+        color: #8b4513;
+        background: transparent;
+        border: 2px solid #8b4513;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+        font-weight: 500;
+    }
+
+    .back-button:hover {
+        background: #8b4513;
+        color: #f5e6d3;
+    }
+
+    .required-note {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 0.95rem;
+        color: #8b7355;
+        text-align: center;
+        margin-top: 1rem;
+        font-style: italic;
+        position: relative;
+        z-index: 1;
+    }
+
+    @media (max-width: 768px) {
+        .form-wrapper {
+            padding: 2rem 1.5rem;
+        }
+
+        .form-title {
+            font-size: 2.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="letter-form-container">
+    <div class="form-wrapper">
+        <h1 class="form-title">Your Letter to Santa</h1>
+        <p class="form-subtitle">Share your thoughts, feelings, and wishes</p>
+
+        <form method="POST" action="{{ url_for('submit_letter') }}">
+            <!-- Basic Information -->
+            <div class="form-group">
+                <label for="name">Your Name <span style="color: #c44;">*</span></label>
+                <input type="text" id="name" name="name" required placeholder="Enter your name">
+            </div>
+
+            <div class="form-group">
+                <label for="age">Your Age <span class="optional">(optional)</span></label>
+                <input type="number" id="age" name="age" min="1" max="120" placeholder="Enter your age">
+            </div>
+
+            <div class="form-group">
+                <label for="gender">Gender <span class="optional">(optional)</span></label>
+                <select id="gender" name="gender">
+                    <option value="">Select (optional)</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                    <option value="prefer-not-to-say">Prefer not to say</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="country">Country <span class="optional">(optional)</span></label>
+                <input type="text" id="country" name="country" placeholder="Enter your country">
+            </div>
+
+            <!-- Emotional Questions -->
+            <div class="form-group">
+                <label for="feeling">How are you feeling? <span style="color: #c44;">*</span></label>
+                <textarea id="feeling" name="feeling" class="large" required placeholder="Share your current emotions and feelings..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="wish">What do you wish for this Christmas? <span style="color: #c44;">*</span></label>
+                <textarea id="wish" name="wish" class="large" required placeholder="Share your hopes and wishes..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="memory">One good memory from this year <span style="color: #c44;">*</span></label>
+                <textarea id="memory" name="memory" class="large" required placeholder="Share a special memory that brought you joy..."></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="submit-button">Send Letter to Santa</button>
+            </div>
+
+            <p class="required-note">* Required fields</p>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <a href="{{ url_for('letter_intro') }}" class="back-button">← Back</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

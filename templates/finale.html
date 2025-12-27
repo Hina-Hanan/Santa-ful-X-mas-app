@@ -10,7 +10,7 @@
 {% block extra_css %}
 <style>
     body {
-        overflow: hidden;
+        overflow: hidden !important;
     }
 
     .finale-container {
@@ -388,15 +388,106 @@
 
         <!-- Action Buttons -->
         <div class="finale-actions">
+            <a href="{{ url_for('letter_intro') }}" class="replay-button">✉️ Write Letter to Santa</a>
             <a href="{{ url_for('map') }}" class="back-button">Back to Control Room</a>
             <a href="{{ url_for('index') }}" class="home-button">Return Home</a>
             <a href="{{ url_for('reset') }}" class="replay-button">🔄 Replay Game</a>
         </div>
     </div>
 </div>
+
+<!-- Background Audio -->
+<audio id="bgAudio" loop preload="auto" style="display: none;">
+    <source src="{{ url_for('static', filename='assets/audio/bg_song.mp3') }}" type="audio/mpeg">
+</audio>
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    // Play background audio on finale page
+    console.log('=== FINALE PAGE: AUDIO INITIALIZATION ===');
+    
+    function initBackgroundAudio() {
+        const audio = document.getElementById('bgAudio');
+        console.log('Audio element found:', !!audio);
+        
+        if (!audio) {
+            console.error('ERROR: Audio element with id "bgAudio" not found!');
+            return;
+        }
+        
+        const audioUrl = "{{ url_for('static', filename='assets/audio/bg_song.mp3') }}";
+        console.log('Audio URL:', audioUrl);
+        
+        audio.volume = 0.5;
+        console.log('Audio volume set to:', audio.volume);
+        
+        function playAudio() {
+            // Always try to play when page loads
+            console.log('Attempting to play audio...');
+            console.log('Audio readyState:', audio.readyState);
+            console.log('Audio paused:', audio.paused);
+            
+            // If audio is already playing, don't restart it
+            if (!audio.paused) {
+                console.log('Audio is already playing');
+                return;
+            }
+            
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log('✅ SUCCESS: Audio is now playing!');
+                    console.log('Audio volume:', audio.volume);
+                    console.log('Audio paused:', audio.paused);
+                }).catch(error => {
+                    console.warn('⚠️ Autoplay blocked:', error.name, error.message);
+                    console.log('Audio will play on next user interaction');
+                });
+            }
+        }
+        
+        // Try to play when audio can play
+        audio.addEventListener('canplay', function() {
+            console.log('Audio can play event fired');
+            playAudio();
+        });
+        
+        audio.addEventListener('canplaythrough', function() {
+            console.log('Audio can play through event fired');
+            playAudio();
+        });
+        
+        // Try to play on any user interaction
+        const events = ['click', 'touchstart', 'mousedown', 'keydown'];
+        events.forEach(eventType => {
+            document.addEventListener(eventType, function() {
+                console.log('User interaction detected:', eventType);
+                playAudio();
+            }, { once: true });
+        });
+        
+        // Try to play after a delay
+        setTimeout(function() {
+            console.log('Timeout: Attempting to play audio');
+            playAudio();
+        }, 1000);
+        
+        // Handle audio errors
+        audio.addEventListener('error', function(e) {
+            console.error('❌ AUDIO ERROR:', e);
+            console.error('Error details:', audio.error);
+        });
+    }
+    
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initBackgroundAudio);
+    } else {
+        initBackgroundAudio();
+    }
+</script>
 <script>
     // Create snowflakes
     function createSnow() {
