@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block title %}Instructions - Santa-ful X-mas{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Dancing+Script:wght@400;500;600;700&family=Bangers&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: radial-gradient(circle, #8b0000 0%, #4a0000 70%, #2a0000 100%);
+        min-height: 100vh;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .instructions-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .instructions-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .instructions-title {
+        font-family: 'Great Vibes', 'Dancing Script', cursive;
+        color: #ffffff;
+        font-size: 4rem;
+        font-weight: 400;
+        letter-spacing: 0.05em;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 2px 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .instructions-subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.2rem;
+        font-weight: 300;
+        letter-spacing: 0.1em;
+    }
+
+    .section {
+        margin-bottom: 2.5rem;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-left: 4px solid rgba(34, 139, 34, 0.6);
+        border-radius: 10px;
+    }
+
+    .section-title {
+        font-family: 'Bangers', 'Fredoka One', 'Impact', sans-serif;
+        color: #228B22;
+        font-size: 1.8rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .section-content {
+        color: rgba(255, 255, 255, 0.9);
+        line-height: 1.8;
+        font-size: 1rem;
+    }
+
+    .section-content ul {
+        margin: 1rem 0;
+        padding-left: 2rem;
+    }
+
+    .section-content li {
+        margin-bottom: 0.8rem;
+    }
+
+    .section-content strong {
+        color: #228B22;
+        font-weight: 600;
+    }
+
+    .module-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .module-card {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .module-card h4 {
+        color: #228B22;
+        font-family: 'Bangers', sans-serif;
+        font-size: 1.3rem;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+    }
+
+    .module-card p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    .back-button {
+        display: inline-block;
+        margin-top: 2rem;
+        padding: 12px 35px;
+        color: #ffffff;
+        font-size: 1.1rem;
+        font-weight: 300;
+        text-decoration: none;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 30px;
+        backdrop-filter: blur(5px);
+        transition: all 0.4s ease;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .back-button:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.8);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .button-container {
+        text-align: center;
+    }
+
+    .highlight-box {
+        background: rgba(34, 139, 34, 0.1);
+        border: 2px solid rgba(34, 139, 34, 0.3);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+    }
+
+    .highlight-box p {
+        color: #228B22;
+        font-weight: 600;
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+    @media (max-width: 768px) {
+        .instructions-container {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+
+        .instructions-title {
+            font-size: 2.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+        }
+
+        .module-list {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="instructions-container">
+    <div class="instructions-header">
+        <h1 class="instructions-title">How to Play</h1>
+        <p class="instructions-subtitle">Your Guide to Saving Christmas</p>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">🎄 Welcome to Santa-Ful X-mas!</h2>
+        <div class="section-content">
+            <p>You are Santa's helper, and Christmas is in danger! You must complete all four critical missions to save Christmas and help Santa deliver presents to children around the world.</p>
+            <div class="highlight-box">
+                <p>✨ Complete all modules in order to unlock the finale and write your letter to Santa!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">🎯 Game Overview</h2>
+        <div class="section-content">
+            <p>The game consists of <strong>4 sequential modules</strong> that must be completed in order. Each module presents a unique challenge that tests different skills:</p>
+            <div class="module-list">
+                <div class="module-card">
+                    <h4>1. Elf Crisis</h4>
+                    <p>Help the elves fix broken toys before Christmas! This is a puzzle/action game where you need to repair toys.</p>
+                </div>
+                <div class="module-card">
+                    <h4>2. Reindeer Navigation</h4>
+                    <p>Guide Santa's reindeer through obstacles and challenges. Test your reflexes and navigation skills!</p>
+                </div>
+                <div class="module-card">
+                    <h4>3. Gift Ethics</h4>
+                    <p>Make important decisions about gift distribution. Your choices matter in this ethical challenge!</p>
+                </div>
+                <div class="module-card">
+                    <h4>4. Emotion Stabilizer</h4>
+                    <p>Spread joy and happiness to different regions of the world. Balance emotions to ensure a happy Christmas!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">📋 How to Play</h2>
+        <div class="section-content">
+            <ol>
+                <li><strong>Start Your Journey:</strong> Click "Enter Control Room" from the main page to access the mission map.</li>
+                <li><strong>View Your Progress:</strong> The map shows your progress through all four modules. You'll see which modules are completed and which are available.</li>
+                <li><strong>Complete Modules Sequentially:</strong>
+                    <ul>
+                        <li>Modules unlock one at a time in order: Elf → Reindeer → Ethics → Emotion</li>
+                        <li>You must complete each module before the next one becomes available</li>
+                        <li>Your progress is tracked automatically</li>
+                    </ul>
+                </li>
+                <li><strong>Complete Each Challenge:</strong>
+                    <ul>
+                        <li>Follow the on-screen instructions for each module</li>
+                        <li>Each module has its own unique gameplay mechanics</li>
+                        <li>Successfully complete the module to mark it as done</li>
+                    </ul>
+                </li>
+                <li><strong>Unlock the Finale:</strong> Once all four modules are completed, you'll unlock:
+                    <ul>
+                        <li>The Finale - A special ending sequence</li>
+                        <li>Letter to Santa - Write a personalized letter to Santa and receive a reply!</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">🎮 Tips & Strategies</h2>
+        <div class="section-content">
+            <ul>
+                <li><strong>Take Your Time:</strong> Each module is designed to be enjoyable. Don't rush!</li>
+                <li><strong>Read Instructions:</strong> Pay attention to the instructions in each module for the best experience.</li>
+                <li><strong>Track Progress:</strong> Check the progress bar at the top to see how far you've come.</li>
+                <li><strong>Explore Everything:</strong> Make sure to interact with all elements in each module.</li>
+                <li><strong>Have Fun:</strong> Remember, the goal is to have a magical Christmas experience!</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">🎁 Special Features</h2>
+        <div class="section-content">
+            <ul>
+                <li><strong>Letter to Santa:</strong> After completing all modules, you can write a personalized letter to Santa with your wishes, memories, and feelings. Santa will reply with a personalized message!</li>
+                <li><strong>Christmas Card:</strong> Receive a beautiful personalized Christmas card at the end of your journey.</li>
+                <li><strong>Progress Tracking:</strong> Your progress is saved automatically, so you can continue where you left off.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">❓ Need Help?</h2>
+        <div class="section-content">
+            <p>If you're stuck on a module:</p>
+            <ul>
+                <li>Read the module instructions carefully</li>
+                <li>Take your time - there's no rush!</li>
+                <li>Try different approaches if something isn't working</li>
+                <li>Remember that each module has its own unique mechanics</li>
+            </ul>
+            <p>If you want to start over, you can reset your progress from the map page.</p>
+        </div>
+    </div>
+
+    <div class="button-container">
+        <a href="{{ url_for('index') }}" class="back-button">← Back to Home</a>
+    </div>
+</div>
+{% endblock %}
+

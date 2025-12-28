@@ -93,7 +93,7 @@
 
     .instructions {
         background: #0f0f0f;
-        border: 2px solid #4a9eff;
+        border: 2px solid #228B22;
         border-radius: 8px;
         padding: 1.5rem;
         margin-bottom: 2rem;
@@ -101,7 +101,7 @@
     }
 
     .instructions h3 {
-        color: #4a9eff;
+        color: #228B22;
         margin-bottom: 1rem;
         font-size: 1.2rem;
     }
@@ -120,6 +120,47 @@
         position: relative;
         overflow: hidden;
         margin-bottom: 2rem;
+        min-height: 300px;
+    }
+
+    @media (max-width: 768px) {
+        .game-area {
+            height: 300px;
+            min-height: 250px;
+        }
+
+        .reindeer {
+            font-size: 3rem;
+        }
+
+        .obstacle {
+            width: 30px;
+            height: 40px;
+        }
+
+        .obstacle::before {
+            font-size: 2rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .game-area {
+            height: 250px;
+            min-height: 200px;
+        }
+
+        .reindeer {
+            font-size: 2.5rem;
+        }
+
+        .obstacle {
+            width: 25px;
+            height: 35px;
+        }
+
+        .obstacle::before {
+            font-size: 1.5rem;
+        }
     }
 
     .ground {
@@ -135,7 +176,7 @@
     .reindeer {
         position: absolute;
         bottom: 80px;
-        left: 100px;
+        left: 15%;
         font-size: 4rem;
         transition: transform 0.1s ease;
         z-index: 10;
@@ -175,7 +216,7 @@
 
     .jump-button {
         padding: 1rem 3rem;
-        background: #4a9eff;
+        background: #228B22;
         color: #ffffff;
         border: none;
         border-radius: 8px;
@@ -188,9 +229,9 @@
     }
 
     .jump-button:hover {
-        background: #6bb0ff;
+        background: #2d8f2d;
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(74, 158, 255, 0.3);
+        box-shadow: 0 5px 15px rgba(34, 139, 34, 0.3);
     }
 
     .jump-button:active {
@@ -211,7 +252,7 @@
     }
 
     .progress-indicator span {
-        color: #4a9eff;
+        color: #228B22;
         font-weight: 600;
     }
 
@@ -306,7 +347,7 @@
 
     .restart-button {
         padding: 0.8rem 2rem;
-        background: #4a9eff;
+        background: #228B22;
         color: #ffffff;
         border: none;
         border-radius: 8px;
@@ -367,6 +408,50 @@
 {% endblock %}
 
     {% block extra_js %}
+<!-- Background Audio -->
+<audio id="bgAudio" loop preload="auto" style="display: none;">
+    <source src="{{ url_for('static', filename='assets/audio/bg_song2.mp3') }}" type="audio/mpeg">
+</audio>
+
+<script>
+    // Background audio initialization
+    (function() {
+        function initBackgroundAudio() {
+            const audio = document.getElementById('bgAudio');
+            if (!audio) return;
+            
+            audio.volume = 0.5;
+            
+            function playAudio() {
+                if (!audio.paused) return;
+                
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.warn('Autoplay blocked:', error);
+                    });
+                }
+            }
+            
+            audio.addEventListener('canplay', playAudio);
+            audio.addEventListener('canplaythrough', playAudio);
+            
+            const events = ['click', 'touchstart', 'mousedown', 'keydown'];
+            events.forEach(eventType => {
+                document.addEventListener(eventType, playAudio, { once: true });
+            });
+            
+            setTimeout(playAudio, 1000);
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initBackgroundAudio);
+        } else {
+            initBackgroundAudio();
+        }
+    })();
+</script>
+
 <script>
     {% if not is_completed %}
     (function() {
@@ -385,18 +470,55 @@
         const gameOver = document.getElementById('gameOver');
         let obstaclesAvoidedEl = document.getElementById('obstaclesAvoided');
 
-        // Reindeer position constants
-        const REINDEER_LEFT = 100;
+        // Get responsive reindeer position
+        function getReindeerPosition() {
+            const gameAreaWidth = gameArea.offsetWidth;
+            // Use 15% of game area width, but minimum 50px and maximum 150px
+            return Math.max(50, Math.min(150, gameAreaWidth * 0.15));
+        }
+
+        // Reindeer position constants (will be calculated dynamically)
+        function getReindeerLeft() {
+            return getReindeerPosition();
+        }
+
         const REINDEER_WIDTH = 60;
         const REINDEER_HEIGHT = 60;
         const REINDEER_BOTTOM = 80;
-        const REINDEER_GROUND_Y = 400 - REINDEER_BOTTOM - REINDEER_HEIGHT;
-        const REINDEER_JUMP_Y = REINDEER_GROUND_Y - 120;
+        
+        function getReindeerGroundY() {
+            const gameAreaHeight = gameArea.offsetHeight || 400;
+            return gameAreaHeight - REINDEER_BOTTOM - REINDEER_HEIGHT;
+        }
 
-        // Obstacle constants
-        const OBSTACLE_WIDTH = 35;
+        // Obstacle constants (responsive)
+        function getObstacleWidth() {
+            const gameAreaWidth = gameArea.offsetWidth;
+            if (gameAreaWidth < 480) return 25;
+            if (gameAreaWidth < 768) return 30;
+            return 35;
+        }
+
         const OBSTACLE_HEIGHT = 45;
         const OBSTACLE_BOTTOM = 80;
+
+        // Update reindeer position on resize
+        function updateReindeerPosition() {
+            const reindeerLeft = getReindeerLeft();
+            reindeer.style.left = reindeerLeft + 'px';
+        }
+
+        // Initial position setup
+        updateReindeerPosition();
+        
+        // Update position on window resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                updateReindeerPosition();
+            }, 100);
+        });
 
         function jump() {
             if (!gameRunning || isJumping) return;
@@ -421,17 +543,20 @@
             const obstacle = document.createElement('div');
             obstacle.className = 'obstacle';
             const gameAreaWidth = gameArea.offsetWidth;
+            const obstacleWidth = getObstacleWidth();
             obstacle.style.left = gameAreaWidth + 'px'; // Start off-screen to the right
             obstacle.style.bottom = OBSTACLE_BOTTOM + 'px';
+            obstacle.style.width = obstacleWidth + 'px';
             obstacle.dataset.counted = 'false';
+            obstacle.dataset.width = obstacleWidth;
             gameArea.appendChild(obstacle);
             obstacles.push(obstacle);
         }
 
         function checkCollision(obstacleLeft, obstacleRight) {
-            // Reindeer position boundaries
-            const reindeerLeft = REINDEER_LEFT;
-            const reindeerRight = REINDEER_LEFT + REINDEER_WIDTH;
+            // Reindeer position boundaries (responsive)
+            const reindeerLeft = getReindeerLeft();
+            const reindeerRight = reindeerLeft + REINDEER_WIDTH;
             
             // Check if there's actual horizontal overlap
             // For collision, obstacle must be INSIDE reindeer's horizontal boundaries
@@ -459,10 +584,15 @@
 
             const gameAreaWidth = gameArea.offsetWidth;
             const obstaclesToRemove = [];
+            const reindeerLeft = getReindeerLeft();
+            const reindeerRight = reindeerLeft + REINDEER_WIDTH;
 
             obstacles.forEach((obstacle, index) => {
                 // Get current position
                 let currentLeft = parseFloat(obstacle.style.left) || gameAreaWidth;
+                
+                // Get obstacle width (may vary on different screen sizes)
+                const obstacleWidth = parseFloat(obstacle.dataset.width) || getObstacleWidth();
                 
                 // Move obstacle left
                 currentLeft -= gameSpeed;
@@ -470,13 +600,12 @@
 
                 // Calculate obstacle edges
                 const obstacleLeft = currentLeft;
-                const obstacleRight = currentLeft + OBSTACLE_WIDTH;
+                const obstacleRight = currentLeft + obstacleWidth;
 
                 // Only check collision when obstacle is actually in the reindeer's area
                 // This prevents false collisions when obstacle is far away
                 // Check if obstacle is within the reindeer's collision zone (tight bounds)
-                const reindeerRight = REINDEER_LEFT + REINDEER_WIDTH;
-                const isInCollisionZone = obstacleRight >= REINDEER_LEFT && obstacleLeft <= reindeerRight;
+                const isInCollisionZone = obstacleRight >= reindeerLeft && obstacleLeft <= reindeerRight;
                 
                 if (isInCollisionZone) {
                     // Check collision only when obstacle is actually overlapping with reindeer
@@ -489,7 +618,8 @@
 
                 // Check if obstacle passed reindeer successfully
                 // Only count when obstacle has completely passed the reindeer (obstacle's right edge is past reindeer's left edge)
-                if (obstacleRight < REINDEER_LEFT && obstacle.dataset.counted !== 'true') {
+                // Use a small buffer to ensure we count it even if there's slight overlap detection issues
+                if (obstacleRight < reindeerLeft - 5 && obstacle.dataset.counted !== 'true') {
                     obstacle.dataset.counted = 'true';
                     obstaclesAvoided++;
                     if (obstaclesAvoidedEl) {
@@ -504,7 +634,7 @@
                 }
 
                 // Remove obstacle when off-screen to the left
-                if (obstacleRight < -OBSTACLE_WIDTH) {
+                if (obstacleRight < -obstacleWidth) {
                     obstaclesToRemove.push(index);
                     obstacle.remove();
                 }
@@ -528,6 +658,9 @@
             obstaclesAvoided = 0;
             obstacles = [];
             isJumping = false;
+            
+            // Update reindeer position for current screen size
+            updateReindeerPosition();
             
             if (obstaclesAvoidedEl) obstaclesAvoidedEl.textContent = '0';
             if (gameOver) gameOver.classList.remove('show');
@@ -597,6 +730,9 @@
             obstacles = [];
             obstaclesAvoided = 0;
             isJumping = false;
+            
+            // Update reindeer position for current screen size
+            updateReindeerPosition();
             
             const gameStatus = document.getElementById('gameStatus');
             if (gameStatus) {

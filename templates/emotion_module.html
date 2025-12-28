@@ -19,27 +19,26 @@
         --white: #ffffff;
         --glass: rgba(255, 255, 255, 0.1);
         --glass-border: rgba(255, 255, 255, 0.2);
+        
+        /* Emotion Colors */
+        --joy-color: #f1c40f;
+        --energy-color: #e67e22;
+        --hope-color: #9b59b6;
+        --peace-color: #3498db;
+        --kindness-color: #2ecc71;
+        --courage-color: #e74c3c;
+        --gratitude-color: #00bcd4;
     }
 
     body {
         margin: 0;
         padding: 0;
-        background: radial-gradient(circle at center, #3d0000 0%, var(--deep-burgundy) 100%);
-        min-height: 100vh;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
+        background: radial-gradient(circle at center, #1a0505 0%, #050505 100%);
+        height: 100vh;
+        overflow: hidden !important; /* Force no scroll */
         font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
 
-    /* Playful bold cartoon font for headings/titles only */
-    h1, h2, h3, .emotion-module-header h1, .instructions-box h3, .emotions-panel h3, .success-message h2 {
-        font-family: 'Bangers', 'Fredoka One', 'Nunito', 'Comic Sans MS', 'Impact', 'Arial Black', sans-serif;
-        font-weight: 900;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-    }
-
-    /* Fixed Background Layer for Vignette */
     .vignette-overlay {
         position: fixed;
         top: 0;
@@ -48,331 +47,188 @@
         height: 100%;
         z-index: 1;
         pointer-events: none;
-        background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.6) 100%);
+        background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.8) 100%);
     }
 
     .emotion-module-container {
-        padding: 2rem;
-        max-width: 1200px;
-        margin: 0 auto;
+        padding: 1rem;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
         color: #ffffff;
         position: relative;
         z-index: 2;
+        box-sizing: border-box;
     }
 
     .emotion-module-header {
         text-align: center;
-        margin-bottom: 2rem;
+        margin-bottom: 0.5rem;
+        flex-shrink: 0;
     }
 
     .emotion-module-header h1 {
         font-size: 2.5rem;
-        margin-bottom: 1rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
+        margin: 0;
+        color: #fff;
+        text-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
     }
 
-    .emotion-module-header p {
-        color: #888;
-        font-size: 1.1rem;
+    .game-layout {
+        display: flex;
+        flex: 1;
+        gap: 1rem;
+        align-items: stretch;
+        min-height: 0; /* Important for nested flex scroll */
     }
 
-    .instructions-box {
-        background: #0f0f0f;
-        border: 2px solid #4a9eff;
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        text-align: center;
+    .side-panel {
+        width: 140px;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        justify-content: center;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 1rem;
+        backdrop-filter: blur(10px);
+        flex-shrink: 0;
     }
 
-    .instructions-box h3 {
-        color: #4a9eff;
-        margin-bottom: 1rem;
-        font-size: 1.2rem;
-    }
-
-    .instructions-box p {
-        color: #ccc;
-        line-height: 1.6;
-    }
-
-    .emotions-panel {
-        background: #0f0f0f;
-        border: 2px solid #333;
-        border-radius: 12px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-    }
-
-    .emotions-panel h3 {
-        text-align: center;
-        margin-bottom: 1.5rem;
-        font-size: 1.3rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .emotions-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
-    }
-
-    .emotion-draggable {
-        background: #1a1a1a;
-        border: 2px solid #4a9eff;
-        border-radius: 12px;
-        padding: 2rem;
-        text-align: center;
-        cursor: grab;
-        transition: all 0.3s ease;
+    .map-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: #080808;
+        border: 2px solid #222;
+        border-radius: 30px;
         position: relative;
+        box-shadow: inset 0 0 50px rgba(0,0,0,1);
         overflow: hidden;
-        user-select: none;
-    }
-
-    .emotion-draggable:active {
-        cursor: grabbing;
-    }
-
-    .emotion-draggable.dragging {
-        opacity: 0.5;
-        transform: scale(0.95);
-        z-index: 1000;
-    }
-
-    .emotion-draggable:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 20px rgba(74, 158, 255, 0.3);
-        border-color: #6bb0ff;
-    }
-
-    .emotion-draggable[data-emotion="hope"] {
-        border-color: #9b59b6;
-    }
-
-    .emotion-draggable[data-emotion="hope"]:hover {
-        border-color: #bb79d6;
-        box-shadow: 0 5px 20px rgba(155, 89, 182, 0.3);
-    }
-
-    .emotion-draggable[data-emotion="joy"] {
-        border-color: #f39c12;
-    }
-
-    .emotion-draggable[data-emotion="joy"]:hover {
-        border-color: #f5b041;
-        box-shadow: 0 5px 20px rgba(243, 156, 18, 0.3);
-    }
-
-    .emotion-draggable[data-emotion="energy"] {
-        border-color: #e74c3c;
-    }
-
-    .emotion-draggable[data-emotion="energy"]:hover {
-        border-color: #ec7063;
-        box-shadow: 0 5px 20px rgba(231, 76, 60, 0.3);
-    }
-
-    .emotion-icon {
-        font-size: 4rem;
-        margin-bottom: 0.5rem;
-        display: block;
-    }
-
-    .emotion-name {
-        font-size: 1.2rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 0.5rem;
-    }
-
-    .emotion-description {
-        font-size: 0.9rem;
-        color: #888;
-    }
-
-    .world-map-container {
-        background: #0a0a0a;
-        border: 3px solid #333;
-        border-radius: 12px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        position: relative;
-        min-height: 500px;
     }
 
     .world-map-svg {
         width: 100%;
         height: 100%;
+        max-height: 100%;
     }
+
+    .emotion-draggable {
+        width: 80px;
+        height: 80px;
+        background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5) 0%, transparent 70%), rgba(255,255,255,0.1);
+        border: 2px solid rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: grab;
+        transition: all 0.3s ease;
+        position: relative;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+        flex-shrink: 0;
+    }
+
+    .emotion-draggable:hover {
+        transform: scale(1.1);
+        border-color: rgba(255,255,255,0.6);
+    }
+
+    .emotion-draggable.dragging {
+        opacity: 0.3;
+        transform: scale(0.7);
+    }
+
+    .emotion-draggable[data-emotion="joy"] { background-color: rgba(241, 196, 15, 0.2); border-color: var(--joy-color); }
+    .emotion-draggable[data-emotion="energy"] { background-color: rgba(230, 126, 34, 0.2); border-color: var(--energy-color); }
+    .emotion-draggable[data-emotion="hope"] { background-color: rgba(155, 89, 182, 0.2); border-color: var(--hope-color); }
+    .emotion-draggable[data-emotion="peace"] { background-color: rgba(52, 152, 219, 0.2); border-color: var(--peace-color); }
+    .emotion-draggable[data-emotion="kindness"] { background-color: rgba(46, 204, 113, 0.2); border-color: var(--kindness-color); }
+    .emotion-draggable[data-emotion="courage"] { background-color: rgba(231, 76, 60, 0.2); border-color: var(--courage-color); }
+    .emotion-draggable[data-emotion="gratitude"] { background-color: rgba(0, 188, 212, 0.2); border-color: var(--gratitude-color); }
+
+    .emotion-icon { font-size: 2rem; }
+    .emotion-name { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; }
 
     .region {
         cursor: pointer;
-        transition: all 0.3s ease;
-        stroke: #333;
-        stroke-width: 2;
-        fill: #2a2a2a;
+        transition: all 0.4s ease;
+        stroke: rgba(255,255,255,0.1);
+        stroke-width: 1;
+        fill: #151515;
     }
 
-    .region.drag-over {
-        stroke: #4a9eff;
-        stroke-width: 4;
-        fill: rgba(74, 158, 255, 0.2);
-    }
+    .region.drag-over { fill: rgba(255, 255, 255, 0.1); stroke: #fff; stroke-width: 2; }
+    .region.fixed { stroke-width: 1.5; }
 
-    .region.fixed {
-        fill: #4CAF50;
-        opacity: 0.8;
-        animation: successGlow 2s ease-in-out infinite;
-    }
-
-    @keyframes successGlow {
-        0%, 100% {
-            box-shadow: 0 0 0 rgba(76, 175, 80, 0);
-        }
-        50% {
-            box-shadow: 0 0 30px rgba(76, 175, 80, 0.6);
-        }
-    }
-
-    .region.incorrect-drop {
-        animation: shake 0.5s ease-in-out;
-    }
-
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
-        20%, 40%, 60%, 80% { transform: translateX(10px); }
-    }
-
-    .region-label {
-        font-size: 14px;
-        fill: #ffffff;
-        font-weight: 600;
-        text-anchor: middle;
-        pointer-events: none;
-    }
-
-    .problem-icon {
-        font-size: 2rem;
-        pointer-events: none;
-    }
+    .region-label { font-size: 14px; fill: rgba(255,255,255,0.3); font-weight: 600; text-anchor: middle; pointer-events: none; }
+    .problem-icon { font-size: 2rem; pointer-events: none; filter: drop-shadow(0 0 5px rgba(0,0,0,0.8)); }
+    .problem-label { font-size: 10px; font-weight: 700; text-anchor: middle; pointer-events: none; text-transform: uppercase; }
 
     .interaction-counter {
         text-align: center;
-        margin-bottom: 1rem;
-        color: #888;
-        font-size: 0.9rem;
+        margin: 0.5rem 0;
+        font-family: 'Bangers', sans-serif;
+        font-size: 1.2rem;
+        flex-shrink: 0;
     }
 
-    .interaction-counter span {
-        color: #4a9eff;
-        font-weight: 600;
-    }
+    .interaction-counter span { color: var(--gold-bright); font-size: 1.8rem; }
 
     .module-actions {
         text-align: center;
-        margin-top: 2rem;
+        padding: 0.5rem;
+        flex-shrink: 0;
     }
 
     .complete-button {
-        display: inline-block;
-        padding: 1rem 3rem;
-        background: #4CAF50;
-        color: #ffffff;
+        padding: 0.8rem 3rem;
+        background: linear-gradient(135deg, #4CAF50, #1B5E20);
+        color: #fff;
         border: none;
-        border-radius: 8px;
-        font-size: 1.1rem;
+        border-radius: 40px;
+        font-size: 1.2rem;
+        font-weight: bold;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
         cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-    }
-
-    .complete-button:hover {
-        background: #45a049;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
-    }
-
-    .complete-button:disabled {
-        background: #333;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    .back-button {
-        display: inline-block;
-        padding: 0.8rem 2rem;
-        color: #ffffff;
-        border: 2px solid #ffffff;
-        text-decoration: none;
-        font-size: 1rem;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        transition: all 0.3s ease;
-        margin-left: 1rem;
-    }
-
-    .back-button:hover {
-        background: #ffffff;
-        color: #1a1a1a;
     }
 
     .success-message {
-        text-align: center;
-        padding: 2rem;
-        background: rgba(76, 175, 80, 0.1);
-        border: 2px solid #4CAF50;
-        border-radius: 12px;
-        margin-bottom: 2rem;
-    }
-
-    .success-message h2 {
-        color: #4CAF50;
-        font-size: 2rem;
-        margin-bottom: 1rem;
-    }
-
-    .emotion-particles {
         position: absolute;
-        pointer-events: none;
-        z-index: 10;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        max-width: 500px;
+        background: rgba(0, 0, 0, 0.9);
+        border: 2px solid #4CAF50;
+        padding: 2rem;
+        border-radius: 20px;
+        text-align: center;
+        z-index: 100;
+        backdrop-filter: blur(15px);
     }
 
     .particle {
         position: absolute;
-        font-size: 1.5rem;
-        animation: float 2s ease-out forwards;
+        pointer-events: none;
+        animation: explosion 2s forwards;
     }
 
-    @keyframes float {
-        0% {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-        100% {
-            opacity: 0;
-            transform: translateY(-100px) scale(1.5);
-        }
+    @keyframes explosion {
+        0% { opacity: 1; transform: translate(0,0); }
+        100% { opacity: 0; transform: translate(var(--tx), var(--ty)); }
     }
 
-    .flash-red {
-        animation: flashRed 0.5s ease-in-out;
-    }
-
-    @keyframes flashRed {
-        0%, 100% {
-            filter: brightness(1);
-        }
-        50% {
-            filter: brightness(1.5) hue-rotate(0deg);
-            stroke: #e74c3c;
-        }
+    /* Mobile handling - if screen is too small, revert or adjust */
+    @media (max-width: 1000px) {
+        .game-layout { flex-direction: column; overflow-y: auto; }
+        .side-panel { width: 100%; flex-direction: row; flex-wrap: wrap; height: auto; }
+        body { overflow: auto !important; }
     }
 </style>
 {% endblock %}
@@ -381,92 +237,124 @@
 <div class="vignette-overlay"></div>
 <div class="emotion-module-container">
     <div class="emotion-module-header">
-        <h1>💚 Emotion Stabilizer</h1>
-        <p>Fix problems by dragging the correct emotion to each region</p>
+        <h1>💚 Global Harmony</h1>
     </div>
 
-    {% if is_completed %}
-    <div class="success-message">
-        <h2>✓ Module Completed!</h2>
-        <p>You've successfully fixed all problems across the world! Every region is now filled with the right emotions!</p>
-    </div>
-    {% else %}
-    <div class="instructions-box">
-        <h3>How to Play</h3>
-        <p>Drag the correct emotion image onto each region to fix its problem. 
-        Each region has a specific problem that needs a specific emotion to fix it!</p>
+    <div class="interaction-counter">
+        Stabilized: <span id="regionsCount">0</span>/7
     </div>
 
-    <div class="emotions-panel">
-        <h3>Available Emotions - Drag These!</h3>
-        <div class="emotions-grid">
+    <div class="game-layout">
+        <!-- Left Panel: 4 Emotions -->
+        <div class="side-panel">
+            <div class="emotion-draggable" draggable="true" data-emotion="courage" id="emotion-courage">
+                <div class="emotion-icon">🦁</div>
+                <div class="emotion-name">Courage</div>
+            </div>
             <div class="emotion-draggable" draggable="true" data-emotion="joy" id="emotion-joy">
                 <div class="emotion-icon">🎉</div>
                 <div class="emotion-name">Joy</div>
-                <div class="emotion-description">Spread happiness</div>
             </div>
+            <div class="emotion-draggable" draggable="true" data-emotion="peace" id="emotion-peace">
+                <div class="emotion-icon">🕊️</div>
+                <div class="emotion-name">Peace</div>
+            </div>
+            <div class="emotion-draggable" draggable="true" data-emotion="kindness" id="emotion-kindness">
+                <div class="emotion-icon">🤝</div>
+                <div class="emotion-name">Kindness</div>
+            </div>
+        </div>
+
+        <!-- Center Map -->
+        <div class="map-area" id="mapContainer">
+            <div class="emotion-particles" id="particles"></div>
+            <!-- Updated viewBox to 1000x600 to give Antarctica more breathing room at the bottom -->
+            <svg class="world-map-svg" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
+                <!-- North America -->
+                <g id="region-na-group">
+                    <path class="region" id="region-na" d="M100,50 L120,40 L150,30 L200,20 L250,30 L280,50 L290,100 L270,150 L250,180 L220,210 L180,220 L140,210 L100,180 L80,150 L70,100 L80,70 Z" data-required-emotion="courage"/>
+                    <text class="region-label" x="180" y="100">North America</text>
+                    <text class="problem-icon" x="180" y="135" text-anchor="middle">❄️</text>
+                    <text class="problem-label" x="180" y="155" fill="#ff6b6b">Frozen</text>
+                </g>
+
+                <!-- South America -->
+                <g id="region-sa-group">
+                    <path class="region" id="region-sa" d="M220,220 L280,230 L310,260 L300,320 L270,380 L230,450 L190,400 L170,320 L180,260 L200,230 Z" data-required-emotion="joy"/>
+                    <text class="region-label" x="240" y="300">South America</text>
+                    <text class="problem-icon" x="240" y="335" text-anchor="middle">🌧️</text>
+                    <text class="problem-label" x="240" y="355" fill="#ff6b6b">Gloom</text>
+                </g>
+
+                <!-- Europe -->
+                <g id="region-eu-group">
+                    <path class="region" id="region-eu" d="M420,50 L480,40 L530,50 L550,100 L530,150 L480,160 L430,150 L400,100 Z" data-required-emotion="peace"/>
+                    <text class="region-label" x="475" y="90">Europe</text>
+                    <text class="problem-icon" x="475" y="125" text-anchor="middle">📢</text>
+                    <text class="problem-label" x="475" y="145" fill="#ff6b6b">Chaos</text>
+                </g>
+
+                <!-- Africa -->
+                <g id="region-af-group">
+                    <path class="region" id="region-af" d="M420,170 L530,160 L580,200 L570,280 L530,350 L480,380 L420,350 L380,300 L390,220 Z" data-required-emotion="kindness"/>
+                    <text class="region-label" x="480" y="250">Africa</text>
+                    <text class="problem-icon" x="480" y="285" text-anchor="middle">🥀</text>
+                    <text class="problem-label" x="480" y="305" fill="#ff6b6b">Isolation</text>
+                </g>
+
+                <!-- Asia -->
+                <g id="region-as-group">
+                    <path class="region" id="region-as" d="M560,40 L700,20 L850,50 L920,120 L900,220 L800,280 L650,300 L580,250 L550,150 L540,80 Z" data-required-emotion="energy"/>
+                    <text class="region-label" x="720" y="130">Asia</text>
+                    <text class="problem-icon" x="720" y="165" text-anchor="middle">💤</text>
+                    <text class="problem-label" x="720" y="185" fill="#ff6b6b">Fatigue</text>
+                </g>
+
+                <!-- Australia -->
+                <g id="region-au-group">
+                    <path class="region" id="region-au" d="M780,320 L880,310 L920,350 L900,420 L820,430 L770,380 Z" data-required-emotion="hope"/>
+                    <text class="region-label" x="845" y="365">Australia</text>
+                    <text class="problem-icon" x="845" y="395" text-anchor="middle">🏜️</text>
+                    <text class="problem-label" x="845" y="415" fill="#ff6b6b">Drought</text>
+                </g>
+
+                <!-- Antarctica - Positioned and padded for visibility -->
+                <g id="region-an-group">
+                    <path class="region" id="region-an" d="M300,500 L700,500 L800,540 L200,540 Z" data-required-emotion="gratitude"/>
+                    <text class="region-label" x="500" y="525" style="font-size: 14px;">Antarctica</text>
+                    <text class="problem-icon" x="500" y="560" text-anchor="middle">🌑</text>
+                    <text class="problem-label" x="500" y="580" fill="#ff6b6b">Forgotten</text>
+                </g>
+            </svg>
+        </div>
+
+        <!-- Right Panel: 3 Emotions -->
+        <div class="side-panel">
             <div class="emotion-draggable" draggable="true" data-emotion="energy" id="emotion-energy">
                 <div class="emotion-icon">⚡</div>
                 <div class="emotion-name">Energy</div>
-                <div class="emotion-description">Boost vitality</div>
             </div>
             <div class="emotion-draggable" draggable="true" data-emotion="hope" id="emotion-hope">
                 <div class="emotion-icon">✨</div>
                 <div class="emotion-name">Hope</div>
-                <div class="emotion-description">Inspire optimism</div>
+            </div>
+            <div class="emotion-draggable" draggable="true" data-emotion="gratitude" id="emotion-gratitude">
+                <div class="emotion-icon">💎</div>
+                <div class="emotion-name">Gratitude</div>
             </div>
         </div>
     </div>
 
-    <div class="interaction-counter">
-        Regions fixed: <span id="regionsCount">0</span>/4
+    {% if is_completed %}
+    <div class="success-message">
+        <h2>✨ Mission Accomplished!</h2>
+        <p>The entire planet is now balanced.</p>
+        <a href="{{ url_for('map') }}" class="back-button">Back to Map</a>
     </div>
-
-    <div class="world-map-container" id="mapContainer">
-        <div class="emotion-particles" id="particles"></div>
-        <svg class="world-map-svg" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
-            <!-- Northern Region - Sad Elf needs Joy -->
-            <g id="region-north-group">
-                <path class="region" id="region-north" d="M 100 50 Q 200 30 300 50 T 500 60 T 700 50 L 700 150 L 100 150 Z" 
-                      data-required-emotion="joy"/>
-                <text class="region-label" x="400" y="80">Northern Region</text>
-                <text class="problem-icon" x="400" y="120" text-anchor="middle">😢</text>
-                <text class="problem-label" x="400" y="140" font-size="12px" fill="#ff6b6b">Sad Elf</text>
-            </g>
-
-            <!-- Southern Region - Slow Reindeer needs Energy -->
-            <g id="region-south-group">
-                <path class="region" id="region-south" d="M 100 150 Q 200 170 300 150 T 500 140 T 700 150 L 700 250 L 100 250 Z" 
-                      data-required-emotion="energy"/>
-                <text class="region-label" x="400" y="180">Southern Region</text>
-                <text class="problem-icon" x="400" y="220" text-anchor="middle">🦌</text>
-                <text class="problem-label" x="400" y="240" font-size="12px" fill="#ff6b6b">Slow Reindeer</text>
-            </g>
-
-            <!-- Eastern Region - Broken Toy needs Hope -->
-            <g id="region-east-group">
-                <path class="region" id="region-east" d="M 100 250 Q 200 270 300 250 T 500 240 T 700 250 L 700 350 L 100 350 Z" 
-                      data-required-emotion="hope"/>
-                <text class="region-label" x="400" y="280">Eastern Region</text>
-                <text class="problem-icon" x="400" y="320" text-anchor="middle">🧸</text>
-                <text class="problem-label" x="400" y="340" font-size="12px" fill="#ff6b6b">Broken Toy</text>
-            </g>
-
-            <!-- Western Region - Cold Heart needs Joy -->
-            <g id="region-west-group">
-                <path class="region" id="region-west" d="M 50 100 Q 80 120 50 200 Q 80 280 50 300 L 100 300 L 100 100 Z" 
-                      data-required-emotion="joy"/>
-                <text class="region-label" x="75" y="180">Western Region</text>
-                <text class="problem-icon" x="75" y="220" text-anchor="middle">❄️</text>
-                <text class="problem-label" x="75" y="240" font-size="12px" fill="#ff6b6b">Cold Heart</text>
-            </g>
-        </svg>
-    </div>
-
-    <form method="POST" action="{{ url_for('complete_emotion') }}" id="completeForm" style="display: none;">
-        <button type="submit" class="complete-button" id="completeButton">Complete Module</button>
+    {% else %}
+    <form method="POST" action="{{ url_for('complete_emotion') }}" id="completeForm" style="display: none; margin-top: 1rem; text-align: center;">
+        <button type="submit" class="complete-button" id="completeButton">Complete Mission</button>
     </form>
-
     <div class="module-actions">
         <a href="{{ url_for('map') }}" class="back-button">Back to Control Room</a>
     </div>
@@ -475,180 +363,128 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Background Audio -->
+<audio id="bgAudio" loop preload="auto" style="display: none;">
+    <source src="{{ url_for('static', filename='assets/audio/bg_song2.mp3') }}" type="audio/mpeg">
+</audio>
+
+<script>
+    (function() {
+        function initBackgroundAudio() {
+            const audio = document.getElementById('bgAudio');
+            if (!audio) return;
+            audio.volume = 0.5;
+            function playAudio() {
+                if (!audio.paused) return;
+                const playPromise = audio.play();
+                if (playPromise !== undefined) playPromise.catch(e => {});
+            }
+            const events = ['click', 'touchstart', 'mousedown', 'keydown'];
+            events.forEach(e => document.addEventListener(e, playAudio, { once: true }));
+            setTimeout(playAudio, 1000);
+        }
+        initBackgroundAudio();
+    })();
+</script>
+
 <script>
     {% if not is_completed %}
-    let fixedRegions = new Set();
-    const emotionIcons = {
-        'hope': '✨',
-        'joy': '🎉',
-        'energy': '⚡'
-    };
+    (function() {
+        let fixedRegions = new Set();
+        const totalRegions = 7;
+        const emotionIcons = { 'hope': '✨', 'joy': '🎉', 'energy': '⚡', 'peace': '🕊️', 'kindness': '🤝', 'courage': '🦁', 'gratitude': '💎' };
+        const emotionColors = { 'joy': '#f1c40f', 'energy': '#e67e22', 'hope': '#9b59b6', 'peace': '#3498db', 'kindness': '#2ecc71', 'courage': '#e74c3c', 'gratitude': '#00bcd4' };
 
-    // Drag and drop functionality
-    const draggableEmotions = document.querySelectorAll('.emotion-draggable');
-    const regions = document.querySelectorAll('.region');
+        const draggableEmotions = document.querySelectorAll('.emotion-draggable');
+        const regions = document.querySelectorAll('.region');
 
-    draggableEmotions.forEach(emotion => {
-        emotion.addEventListener('dragstart', handleDragStart);
-        emotion.addEventListener('dragend', handleDragEnd);
-    });
-
-    regions.forEach(region => {
-        region.addEventListener('dragover', handleDragOver);
-        region.addEventListener('drop', handleDrop);
-        region.addEventListener('dragenter', handleDragEnter);
-        region.addEventListener('dragleave', handleDragLeave);
-    });
-
-    let draggedEmotion = null;
-
-    function handleDragStart(e) {
-        draggedEmotion = this;
-        this.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/html', this.outerHTML);
-    }
-
-    function handleDragEnd(e) {
-        this.classList.remove('dragging');
-        regions.forEach(region => {
-            region.classList.remove('drag-over');
+        draggableEmotions.forEach(emotion => {
+            emotion.addEventListener('dragstart', function(e) {
+                this.classList.add('dragging');
+                e.dataTransfer.setData('text/plain', this.dataset.emotion);
+            });
+            emotion.addEventListener('dragend', function() {
+                this.classList.remove('dragging');
+                regions.forEach(r => r.classList.remove('drag-over'));
+            });
         });
-    }
 
-    function handleDragOver(e) {
-        if (e.preventDefault) {
-            e.preventDefault();
-        }
-        e.dataTransfer.dropEffect = 'move';
-        return false;
-    }
+        regions.forEach(region => {
+            region.addEventListener('dragover', e => e.preventDefault());
+            region.addEventListener('dragenter', function() { this.classList.add('drag-over'); });
+            region.addEventListener('dragleave', function() { this.classList.remove('drag-over'); });
+            region.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+                const emotion = e.dataTransfer.getData('text/plain');
+                if (fixedRegions.has(this.id)) return;
 
-    function handleDragEnter(e) {
-        if (e.preventDefault) {
-            e.preventDefault();
-        }
-        this.classList.add('drag-over');
-        return false;
-    }
-
-    function handleDragLeave(e) {
-        this.classList.remove('drag-over');
-    }
-
-    function handleDrop(e) {
-        if (e.stopPropagation) {
-            e.stopPropagation();
-        }
-
-        this.classList.remove('drag-over');
-
-        if (!draggedEmotion) {
-            return false;
-        }
-
-        const droppedEmotion = draggedEmotion.getAttribute('data-emotion');
-        const requiredEmotion = this.getAttribute('data-required-emotion');
-        const regionId = this.getAttribute('id');
-
-        // Check if this region is already fixed
-        if (fixedRegions.has(regionId)) {
-            return false;
-        }
-
-        // Check if correct emotion
-        if (droppedEmotion === requiredEmotion) {
-            // Correct drop!
-            this.classList.add('fixed');
-            fixedRegions.add(regionId);
-            updateRegionsCount();
-
-            // Update problem icon to show it's fixed
-            const regionGroup = this.parentElement;
-            if (regionGroup && regionGroup.tagName === 'g') {
-                const problemIcon = regionGroup.querySelector('.problem-icon');
-                if (problemIcon) {
-                    // Change to happy/fixed icon based on problem
-                    if (regionId === 'region-north') {
-                        problemIcon.textContent = '😊'; // Happy elf
-                    } else if (regionId === 'region-south') {
-                        problemIcon.textContent = '🦌✨'; // Energetic reindeer
-                    } else if (regionId === 'region-east') {
-                        problemIcon.textContent = '🧸✨'; // Fixed toy
-                    } else if (regionId === 'region-west') {
-                        problemIcon.textContent = '❤️'; // Warm heart
-                    }
+                if (emotion === this.dataset.requiredEmotion) {
+                    stabilizeRegion(this, emotion);
+                } else {
+                    this.classList.add('incorrect-drop');
+                    setTimeout(() => this.classList.remove('incorrect-drop'), 600);
                 }
-                const problemLabel = regionGroup.querySelector('.problem-label');
-                if (problemLabel) {
-                    problemLabel.textContent = 'Fixed!';
-                    problemLabel.setAttribute('fill', '#4CAF50');
-                }
+            });
+        });
+
+        function stabilizeRegion(region, emotion) {
+            region.classList.add('fixed');
+            region.style.fill = emotionColors[emotion];
+            region.style.stroke = '#fff';
+            fixedRegions.add(region.id);
+            document.getElementById('regionsCount').textContent = fixedRegions.size;
+
+            const group = region.parentElement;
+            const pIcon = group.querySelector('.problem-icon');
+            const pLabel = group.querySelector('.problem-label');
+
+            if (pIcon) pIcon.textContent = '✅';
+            if (pLabel) {
+                pLabel.textContent = 'Stabilized!';
+                pLabel.style.fill = '#4CAF50';
             }
 
-            // Create success particles
-            createSuccessParticles(this);
+            createParticles(region, emotion);
 
-            // Check if all regions are fixed
-            if (fixedRegions.size >= 4) {
+            if (fixedRegions.size >= totalRegions) {
                 setTimeout(() => {
-                    document.getElementById('completeForm').style.display = 'inline-block';
+                    const form = document.getElementById('completeForm');
+                    if (form) form.style.display = 'block';
                     document.getElementById('completeButton').disabled = false;
-                }, 500);
+                }, 800);
             }
-        } else {
-            // Incorrect drop - show hint animation
-            this.classList.add('incorrect-drop');
-            this.classList.add('flash-red');
+        }
+
+        function createParticles(region, emotion) {
+            const container = document.getElementById('mapContainer');
+            const particles = document.getElementById('particles');
+            const svg = container.querySelector('svg');
+            const rect = container.getBoundingClientRect();
+            const bbox = region.getBBox();
             
-            setTimeout(() => {
-                this.classList.remove('incorrect-drop');
-                this.classList.remove('flash-red');
-            }, 500);
+            const svgPoint = svg.createSVGPoint();
+            svgPoint.x = bbox.x + bbox.width / 2;
+            svgPoint.y = bbox.y + bbox.height / 2;
+            const screenPoint = svgPoint.matrixTransform(svg.getScreenCTM());
+            const x = screenPoint.x - rect.left;
+            const y = screenPoint.y - rect.top;
+
+            for (let i = 0; i < 15; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.textContent = emotionIcons[emotion];
+                p.style.left = x + 'px';
+                p.style.top = y + 'px';
+                p.style.setProperty('--tx', `${(Math.random() - 0.5) * 300}px`);
+                p.style.setProperty('--ty', `${(Math.random() - 0.5) * 300}px`);
+                p.style.animationDelay = (i * 0.05) + 's';
+                p.style.color = emotionColors[emotion];
+                particles.appendChild(p);
+                setTimeout(() => p.remove(), 2500);
+            }
         }
-
-        return false;
-    }
-
-    function createSuccessParticles(region) {
-        const mapContainer = document.getElementById('mapContainer');
-        const particlesContainer = document.getElementById('particles');
-        const svg = mapContainer.querySelector('svg');
-        const containerRect = mapContainer.getBoundingClientRect();
-        
-        // Get center of region
-        const bbox = region.getBBox();
-        const svgPoint = svg.createSVGPoint();
-        svgPoint.x = bbox.x + bbox.width / 2;
-        svgPoint.y = bbox.y + bbox.height / 2;
-        const screenPoint = svgPoint.matrixTransform(svg.getScreenCTM());
-        
-        const x = screenPoint.x - containerRect.left;
-        const y = screenPoint.y - containerRect.top;
-
-        // Create multiple particles
-        const emotion = region.getAttribute('data-required-emotion');
-        for (let i = 0; i < 8; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.textContent = emotionIcons[emotion] || '✨';
-            particle.style.left = (x + (Math.random() - 0.5) * 60) + 'px';
-            particle.style.top = (y + (Math.random() - 0.5) * 60) + 'px';
-            particle.style.animationDelay = (i * 0.1) + 's';
-            particlesContainer.appendChild(particle);
-
-            // Remove particle after animation
-            setTimeout(() => {
-                if (particle.parentNode) {
-                    particle.remove();
-                }
-            }, 2000);
-        }
-    }
-
-    function updateRegionsCount() {
-        document.getElementById('regionsCount').textContent = fixedRegions.size;
-    }
+    })();
     {% endif %}
 </script>
 {% endblock %}

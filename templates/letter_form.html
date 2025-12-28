@@ -1,12 +1,5 @@
 {% extends "base.html" %}
 
-{% block progress_bar %}
-<div class="progress-display">
-    <span class="progress-label">Progress:</span>
-    <span class="progress-percentage">{{ progress }}%</span>
-</div>
-{% endblock %}
-
 {% block extra_css %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +7,7 @@
 <style>
     body {
         overflow-y: auto;
-        background: linear-gradient(135deg, #f5e6d3 0%, #e8d5b7 50%, #f5e6d3 100%);
+        background: radial-gradient(circle, #8b0000 0%, #4a0000 70%, #2a0000 100%);
         min-height: 100vh;
     }
 
@@ -285,5 +278,6 @@
     </div>
 </div>
 {% endblock %}
+
 
 

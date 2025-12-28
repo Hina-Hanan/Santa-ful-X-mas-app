@@ -79,14 +79,14 @@
 
     .scenario-box {
         background: #0f0f0f;
-        border: 2px solid #4a9eff;
+        border: 2px solid #228B22;
         border-radius: 12px;
         padding: 2rem;
         margin-bottom: 3rem;
     }
 
     .scenario-box h2 {
-        color: #4a9eff;
+        color: #228B22;
         font-size: 1.5rem;
         margin-bottom: 1rem;
         text-align: center;
@@ -100,8 +100,8 @@
     }
 
     .santa-message {
-        background: rgba(74, 158, 255, 0.1);
-        border-left: 4px solid #4a9eff;
+        background: rgba(34, 139, 34, 0.15);
+        border-left: 4px solid #228B22;
         padding: 1rem 1.5rem;
         margin: 1rem 0;
         font-style: italic;
@@ -128,9 +128,9 @@
     }
 
     .region-card:hover {
-        border-color: #4a9eff;
+        border-color: #228B22;
         transform: translateY(-5px);
-        box-shadow: 0 5px 20px rgba(74, 158, 255, 0.2);
+        box-shadow: 0 5px 20px rgba(34, 139, 34, 0.3);
     }
 
     .region-card.selected {
@@ -178,7 +178,7 @@
 
     .stat-value {
         font-size: 1.2rem;
-        color: #4a9eff;
+        color: #228B22;
         font-weight: 600;
     }
 
@@ -424,6 +424,50 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Background Audio -->
+<audio id="bgAudio" loop preload="auto" style="display: none;">
+    <source src="{{ url_for('static', filename='assets/audio/bg_song2.mp3') }}" type="audio/mpeg">
+</audio>
+
+<script>
+    // Background audio initialization
+    (function() {
+        function initBackgroundAudio() {
+            const audio = document.getElementById('bgAudio');
+            if (!audio) return;
+            
+            audio.volume = 0.5;
+            
+            function playAudio() {
+                if (!audio.paused) return;
+                
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.warn('Autoplay blocked:', error);
+                    });
+                }
+            }
+            
+            audio.addEventListener('canplay', playAudio);
+            audio.addEventListener('canplaythrough', playAudio);
+            
+            const events = ['click', 'touchstart', 'mousedown', 'keydown'];
+            events.forEach(eventType => {
+                document.addEventListener(eventType, playAudio, { once: true });
+            });
+            
+            setTimeout(playAudio, 1000);
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initBackgroundAudio);
+        } else {
+            initBackgroundAudio();
+        }
+    })();
+</script>
+
 <script>
     {% if not is_completed %}
     let selectedRegion = null;

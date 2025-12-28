@@ -486,6 +486,50 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Background Audio -->
+<audio id="bgAudio" loop preload="auto" style="display: none;">
+    <source src="{{ url_for('static', filename='assets/audio/bg_song2.mp3') }}" type="audio/mpeg">
+</audio>
+
+<script>
+    // Background audio initialization
+    (function() {
+        function initBackgroundAudio() {
+            const audio = document.getElementById('bgAudio');
+            if (!audio) return;
+            
+            audio.volume = 0.5;
+            
+            function playAudio() {
+                if (!audio.paused) return;
+                
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.warn('Autoplay blocked:', error);
+                    });
+                }
+            }
+            
+            audio.addEventListener('canplay', playAudio);
+            audio.addEventListener('canplaythrough', playAudio);
+            
+            const events = ['click', 'touchstart', 'mousedown', 'keydown'];
+            events.forEach(eventType => {
+                document.addEventListener(eventType, playAudio, { once: true });
+            });
+            
+            setTimeout(playAudio, 1000);
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initBackgroundAudio);
+        } else {
+            initBackgroundAudio();
+        }
+    })();
+</script>
+
 <script>
     {% if not is_completed %}
     (function() {

@@ -226,3 +226,4 @@ def generate_santa_reply(letter_data):
     return "\n".join(letter_parts)
 
 
+

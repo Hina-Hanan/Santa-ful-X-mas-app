@@ -59,3 +59,4 @@ def has_submitted_letter(session):
     return session.get('letter_data', {}).get('submitted', False)
 
 
+

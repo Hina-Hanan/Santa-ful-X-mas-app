@@ -115,6 +115,11 @@ def is_module_accessible(module_name):
 def index():
     return render_template('index.html')
 
+@app.route('/instructions')
+def instructions():
+    """Instructions page for the game."""
+    return render_template('instructions.html')
+
 @app.route('/map')
 def map():
     initialize_modules()
