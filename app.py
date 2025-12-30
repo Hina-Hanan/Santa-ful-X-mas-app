@@ -1,9 +1,10 @@
 from flask import Flask, render_template, session, redirect, url_for, request
 from modules.letter_logic import initialize_letter_session, save_letter_data, get_letter_data, has_submitted_letter
 from modules.santa_reply_generator import generate_santa_reply
+import os
 
 app = Flask(__name__)
-app.secret_key = 'santa-secret-key-change-in-production'  # Change this in production
+app.secret_key = os.environ.get('SECRET_KEY', 'santa-secret-key-change-in-production')  # Use environment variable in production
 
 # Module name mapping: short names to full module names
 MODULE_MAPPING = {
@@ -425,5 +426,6 @@ def christmas_card():
                          progress=progress)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
 

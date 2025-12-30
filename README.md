@@ -102,6 +102,156 @@ Upon completing all modules, players unlock the special "Letter to Santa" featur
 - **Secret Key**: For production, change the `app.secret_key` in `app.py` to a secure random string
 - **Debug Mode**: The app runs in debug mode by default. Disable for production
 
+## 🌐 Deployment to Render
+
+### Quick Reference: Environment Variables
+
+**What to add in Render Dashboard → Environment tab:**
+
+✅ **ADD THIS:**
+- `SECRET_KEY` - Generate a secure random string (see instructions below)
+
+❌ **DO NOT ADD:**
+- `PORT` - Automatically set by Render (will cause errors if you add it manually)
+
+### Prerequisites
+- A [Render](https://render.com) account (free tier available)
+- Your code pushed to a Git repository (GitHub, GitLab, or Bitbucket)
+
+### Deployment Steps
+
+1. **Prepare your application for production**
+   
+   The application is already configured to use environment variables:
+   - `SECRET_KEY`: Used for Flask session security (Render can auto-generate this)
+   - `PORT`: Automatically set by Render (defaults to 5000 for local development)
+
+2. **Deploy via Render Dashboard**
+   
+   - Go to [Render Dashboard](https://dashboard.render.com)
+   - Click "New +" and select "Web Service"
+   - Connect your Git repository (GitHub, GitLab, or Bitbucket)
+   - Configure the service:
+     - **Name**: `santa-ful-xmas` (or your preferred name)
+     - **Environment**: `Python 3`
+     - **Region**: Choose the closest region to your users
+     - **Branch**: `main` (or your default branch)
+     - **Root Directory**: Leave empty (or specify if your app is in a subdirectory)
+     - **Build Command**: `pip install -r requirements.txt`
+     - **Start Command**: `gunicorn app:app`
+     - **Instance Type**: Free tier is sufficient for testing
+   
+3. **Set Environment Variables**
+   
+   In the Render dashboard, go to your service → **Environment** tab:
+   
+   **Required Environment Variables:**
+   
+   | Variable Name | Value | How to Set |
+   |--------------|-------|------------|
+   | `SECRET_KEY` | A secure random string | Click "Generate" button in Render, or use Python: `python -c "import secrets; print(secrets.token_hex(32))"` |
+   | `PORT` | (Auto-set) | **DO NOT ADD** - Render automatically sets this to `10000` |
+   
+   **Steps to add SECRET_KEY:**
+   1. In Render dashboard → Your Service → **Environment** tab
+   2. Click **"Add Environment Variable"**
+   3. **Key**: `SECRET_KEY`
+   4. **Value**: 
+      - **Option 1 (Recommended)**: Click the "Generate" button next to the value field (Render will create a secure random string)
+      - **Option 2**: Generate your own using Python:
+        ```bash
+        python -c "import secrets; print(secrets.token_hex(32))"
+        ```
+        Copy the output and paste it as the value
+      - **Option 3**: Use any long random string (minimum 32 characters recommended)
+   
+   **Example SECRET_KEY value:**
+   ```
+   a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6
+   ```
+   (This is just an example - always use a unique, randomly generated key!)
+   
+   **Note**: `PORT` environment variable is automatically set by Render - you do NOT need to add it manually.
+
+4. **Deploy**
+   - Click "Create Web Service"
+   - Render will automatically build and deploy your application
+   - Your app will be available at `https://your-app-name.onrender.com`
+   - First deployment may take 5-10 minutes
+
+### Alternative: Using render.yaml (Infrastructure as Code)
+
+You can also deploy using a `render.yaml` file for automated deployments:
+
+1. **Create `render.yaml` in your project root:**
+   ```yaml
+   services:
+     - type: web
+       name: santa-ful-xmas
+       env: python
+       buildCommand: pip install -r requirements.txt
+       startCommand: gunicorn app:app
+       envVars:
+         - key: SECRET_KEY
+           generateValue: true
+         - key: PYTHON_VERSION
+           value: 3.11.0
+   ```
+
+2. **Deploy via Render CLI or Dashboard:**
+   - Push `render.yaml` to your repository
+   - Render will automatically detect and use it
+
+### Important Notes
+
+- **Free Tier Limitations**: 
+  - Render's free tier spins down after 15 minutes of inactivity
+  - The first request after spin-down may take 30-60 seconds (cold start)
+  - Consider upgrading to a paid plan for production use
+  
+- **Secret Key**: 
+  - Always use environment variables for sensitive data
+  - Never commit secret keys to your repository
+  - Render can auto-generate secure keys
+
+- **Static Files**: 
+  - Ensure all static files (images, audio) are committed to your repository
+  - Static files are served automatically by Flask
+
+- **Debug Mode**: 
+  - The app is configured with `debug=False` for production
+  - Never enable debug mode in production (security risk)
+
+- **HTTPS**: 
+  - Render provides HTTPS automatically for all services
+  - Custom domains are supported on paid plans
+
+### Troubleshooting
+
+- **Build Fails**: 
+  - Check that all dependencies are in `requirements.txt`
+  - Verify Python version compatibility
+  - Check build logs in Render dashboard
+
+- **App Crashes**: 
+  - Check logs in Render dashboard → Logs section
+  - Verify environment variables are set correctly
+  - Ensure `gunicorn` is in requirements.txt
+
+- **Static Files Not Loading**: 
+  - Verify file paths are correct
+  - Ensure all files are committed to Git
+  - Check that static files are in the `static/` directory
+
+- **Port Issues**: 
+  - The app is configured to use the `PORT` environment variable
+  - Render automatically sets this, no manual configuration needed
+
+- **Session Issues**: 
+  - Ensure `SECRET_KEY` is set in environment variables
+  - Sessions are stored in memory (lost on restart)
+  - For persistent sessions, consider using a database (not included in free tier)
+
 ### Project Structure
 ```
 Santa_app/
