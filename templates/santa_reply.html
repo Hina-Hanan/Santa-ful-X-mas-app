@@ -74,7 +74,7 @@
         width: 120px;
         height: 120px;
         margin: 0 auto 1.5rem;
-        background-image: url("{{ url_for('static', filename='assets/images/santa2.jpg') }}");
+        background-image: url("{{ url_for('static', filename='assets/images/santaa.jpg') }}");
         background-size: cover;
         background-position: center;
         border-radius: 50%;
@@ -228,10 +228,23 @@
 {% block extra_js %}
 <script>
     let audioPlaying = false;
-    let audioElement = null;
+    let currentUtterance = null;
     
     // Store the reply text from the page content
     const replyText = document.querySelector('.letter-content').textContent.trim();
+
+    // Function to stop speech synthesis
+    function stopSpeech() {
+        if ('speechSynthesis' in window && speechSynthesis.speaking) {
+            speechSynthesis.cancel();
+        }
+        audioPlaying = false;
+        currentUtterance = null;
+        const button = document.getElementById('audioButton');
+        if (button) {
+            button.innerHTML = '<span class="audio-icon">🔊</span> Hear Santa Read This';
+        }
+    }
 
     function playAudio() {
         const button = document.getElementById('audioButton');
@@ -239,10 +252,10 @@
         if (!audioPlaying) {
             // For now, we'll use text-to-speech if available
             if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(replyText);
-                utterance.rate = 0.9;
-                utterance.pitch = 0.8;
-                utterance.volume = 0.8;
+                currentUtterance = new SpeechSynthesisUtterance(replyText);
+                currentUtterance.rate = 0.9;
+                currentUtterance.pitch = 0.8;
+                currentUtterance.volume = 0.8;
                 
                 // Try to find a deeper voice
                 const voices = speechSynthesis.getVoices();
@@ -252,28 +265,59 @@
                     voice.name.toLowerCase().includes('daniel')
                 );
                 if (maleVoice) {
-                    utterance.voice = maleVoice;
+                    currentUtterance.voice = maleVoice;
                 }
                 
-                utterance.onend = function() {
+                currentUtterance.onend = function() {
                     audioPlaying = false;
+                    currentUtterance = null;
                     button.innerHTML = '<span class="audio-icon">🔊</span> Hear Santa Read This';
                 };
                 
-                speechSynthesis.speak(utterance);
+                currentUtterance.onerror = function() {
+                    audioPlaying = false;
+                    currentUtterance = null;
+                    button.innerHTML = '<span class="audio-icon">🔊</span> Hear Santa Read This';
+                };
+                
+                speechSynthesis.speak(currentUtterance);
                 audioPlaying = true;
                 button.innerHTML = '<span class="audio-icon">⏸</span> Pause Reading';
             } else {
                 alert('Audio playback is not supported in your browser. Please read the letter manually.');
             }
         } else {
-            if (speechSynthesis.speaking) {
-                speechSynthesis.cancel();
-                audioPlaying = false;
-                button.innerHTML = '<span class="audio-icon">🔊</span> Hear Santa Read This';
-            }
+            stopSpeech();
         }
     }
+
+    // Stop speech when page is unloaded (navigating away)
+    window.addEventListener('beforeunload', function() {
+        stopSpeech();
+    });
+
+    // Stop speech when page becomes hidden (tab switch, minimize, etc.)
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            stopSpeech();
+        }
+    });
+
+    // Stop speech when page loses focus
+    window.addEventListener('blur', function() {
+        // Only stop if we're actually navigating away, not just clicking elsewhere
+        // We'll rely on beforeunload for navigation
+    });
+
+    // Stop speech when navigation links are clicked
+    document.addEventListener('DOMContentLoaded', function() {
+        const navLinks = document.querySelectorAll('.letter-actions a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                stopSpeech();
+            });
+        });
+    });
 
     // Load voices when page loads
     if ('speechSynthesis' in window) {
