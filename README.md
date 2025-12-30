@@ -69,7 +69,7 @@ Upon completing all modules, players unlock the special "Letter to Santa" featur
 
 1. **Clone or download the repository**
    ```bash
-   cd Santa_app
+   cd project_directory
    ```
 
 2. **Create a virtual environment (recommended)**
