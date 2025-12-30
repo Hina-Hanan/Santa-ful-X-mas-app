@@ -605,21 +605,57 @@
                 // Calculate obstacle edges
                 const obstacleLeft = currentLeft;
                 const obstacleRight = currentLeft + obstacleWidth;
-
-                // EARLY COUNTING: Check if obstacle has passed BEFORE collision check
-                // This ensures we count obstacles even if they're moving fast
-                const dynamicBuffer = Math.max(30, gameAreaWidth * 0.05); // At least 30px or 5% of screen width
-                const hasPassedReindeer = obstacleRight < reindeerLeft - dynamicBuffer;
-                const isCounted = obstacle.dataset.counted === 'true';
                 
-                // Count obstacle early if it has passed (before collision check)
-                if (hasPassedReindeer && !isCounted) {
+                // Check if already counted
+                const isCounted = obstacle.dataset.counted === 'true';
+
+                // COUNTING LOGIC - Multiple checks to ensure we catch every obstacle
+                // Use a generous buffer that adapts to screen size
+                const dynamicBuffer = Math.max(50, gameAreaWidth * 0.08); // At least 50px or 8% of screen width
+                const hasPassedReindeer = obstacleRight < reindeerLeft - dynamicBuffer;
+                
+                // PRIMARY COUNT: Count when obstacle clearly passes reindeer
+                if (!isCounted && hasPassedReindeer) {
                     obstacle.dataset.counted = 'true';
                     obstaclesAvoided++;
+                    // Always re-get the element reference to ensure it's current
+                    obstaclesAvoidedEl = document.getElementById('obstaclesAvoided');
                     if (obstaclesAvoidedEl) {
                         obstaclesAvoidedEl.textContent = obstaclesAvoided;
                     }
-                    console.log('EARLY COUNT: Obstacle avoided! Count:', obstaclesAvoided, 'Buffer:', dynamicBuffer.toFixed(1), 'px');
+                    console.log('✅ COUNTED: Obstacle avoided! Count:', obstaclesAvoided, 'Total obstacles:', obstacles.length, 'Buffer:', dynamicBuffer.toFixed(1), 'px');
+                    
+                    if (obstaclesAvoided >= targetObstacles) {
+                        endGame(true);
+                        return;
+                    }
+                }
+                
+                // SECONDARY COUNT: If obstacle is past reindeer (smaller buffer)
+                if (!isCounted && obstacleRight < reindeerLeft - 20) {
+                    obstacle.dataset.counted = 'true';
+                    obstaclesAvoided++;
+                    obstaclesAvoidedEl = document.getElementById('obstaclesAvoided');
+                    if (obstaclesAvoidedEl) {
+                        obstaclesAvoidedEl.textContent = obstaclesAvoided;
+                    }
+                    console.log('✅ SECONDARY COUNT: Obstacle counted! Count:', obstaclesAvoided);
+                    
+                    if (obstaclesAvoided >= targetObstacles) {
+                        endGame(true);
+                        return;
+                    }
+                }
+                
+                // TERTIARY COUNT: Last chance before removal
+                if (!isCounted && obstacleRight < reindeerLeft && obstacleRight < -obstacleWidth) {
+                    obstacle.dataset.counted = 'true';
+                    obstaclesAvoided++;
+                    obstaclesAvoidedEl = document.getElementById('obstaclesAvoided');
+                    if (obstaclesAvoidedEl) {
+                        obstaclesAvoidedEl.textContent = obstaclesAvoided;
+                    }
+                    console.log('✅ TERTIARY COUNT: Last chance count! Count:', obstaclesAvoided);
                     
                     if (obstaclesAvoided >= targetObstacles) {
                         endGame(true);
@@ -628,58 +664,24 @@
                 }
 
                 // Only check collision when obstacle is actually in the reindeer's area
-                // This prevents false collisions when obstacle is far away
-                // Check if obstacle is within the reindeer's collision zone (tight bounds)
-                const isInCollisionZone = obstacleRight >= reindeerLeft && obstacleLeft <= reindeerRight;
-                
-                if (isInCollisionZone && !isCounted) {
-                    // Check collision only when obstacle is actually overlapping with reindeer
-                    // AND reindeer is on the ground (not jumping)
-                    // AND obstacle hasn't been counted yet (to avoid false collisions after counting)
-                    if (checkCollision(obstacleLeft, obstacleRight)) {
-                        endGame(false);
-                        return;
-                    }
-                }
-
-                // FALLBACK COUNTING: Double-check if obstacle passed but wasn't counted
-                // This is a safety net for edge cases on different screen sizes
-                if (!isCounted && obstacleRight < reindeerLeft - 10) {
-                    // Obstacle is clearly past reindeer but wasn't counted - count it now
-                    obstacle.dataset.counted = 'true';
-                    obstaclesAvoided++;
-                    if (obstaclesAvoidedEl) {
-                        obstaclesAvoidedEl.textContent = obstaclesAvoided;
-                    }
-                    console.log('FALLBACK COUNT: Obstacle counted! Count:', obstaclesAvoided);
+                // AND hasn't been counted yet
+                if (!isCounted) {
+                    const isInCollisionZone = obstacleRight >= reindeerLeft && obstacleLeft <= reindeerRight;
                     
-                    if (obstaclesAvoided >= targetObstacles) {
-                        endGame(true);
-                        return;
-                    }
-                }
-                
-                // FINAL FALLBACK: If obstacle is about to be removed and hasn't been counted, count it now
-                // This ensures we don't lose count on larger screens or fast-moving obstacles
-                const isAboutToBeRemoved = obstacleRight < -obstacleWidth;
-                if (isAboutToBeRemoved && !isCounted && obstacleRight < reindeerLeft) {
-                    // Last chance to count - obstacle is past reindeer and about to be removed
-                    obstacle.dataset.counted = 'true';
-                    obstaclesAvoided++;
-                    if (obstaclesAvoidedEl) {
-                        obstaclesAvoidedEl.textContent = obstaclesAvoided;
-                    }
-                    console.log('FINAL FALLBACK: Obstacle counted before removal! Count:', obstaclesAvoided);
-                    
-                    if (obstaclesAvoided >= targetObstacles) {
-                        endGame(true);
-                        return;
+                    if (isInCollisionZone) {
+                        // Check collision only when obstacle is actually overlapping with reindeer
+                        // AND reindeer is on the ground (not jumping)
+                        if (checkCollision(obstacleLeft, obstacleRight)) {
+                            endGame(false);
+                            return;
+                        }
                     }
                 }
 
                 // Remove obstacle when off-screen to the left (with extra buffer)
-                // Only remove if it's been counted OR if it's way off screen
-                if (obstacleRight < -obstacleWidth * 2) {
+                // IMPORTANT: Only remove if it's been counted OR if it's way off screen
+                // This ensures counted obstacles are removed, but uncounted ones stay longer
+                if (obstacleRight < -obstacleWidth * 3) {
                     obstaclesToRemove.push(index);
                     obstacle.remove();
                 }
@@ -687,8 +689,17 @@
 
             // Remove obstacles from array (in reverse to maintain indices)
             obstaclesToRemove.reverse().forEach(index => {
-                obstacles.splice(index, 1);
+                if (index >= 0 && index < obstacles.length) {
+                    obstacles.splice(index, 1);
+                }
             });
+            
+            // Debug: Log current state periodically
+            if (gameRunning && obstacles.length > 0 && obstaclesAvoided < targetObstacles) {
+                const uncounted = obstacles.filter(obs => obs.dataset.counted !== 'true').length;
+                const counted = obstacles.filter(obs => obs.dataset.counted === 'true').length;
+                console.log('Game state - Avoided:', obstaclesAvoided, '/', targetObstacles, '| Obstacles on screen:', obstacles.length, '| Counted:', counted, '| Uncounted:', uncounted);
+            }
 
             // Continue game loop
             if (gameRunning) {
@@ -705,26 +716,24 @@
             }
             
             // Safety check: if score is stuck, try to recover
-            if (gameRunning && obstaclesAvoided >= 2 && obstaclesAvoided < targetObstacles) {
-                const recentObstacles = obstacles.filter(obs => {
-                    const left = parseFloat(obs.style.left) || 0;
-                    const reindeerLeft = getReindeerLeft();
-                    // Check if obstacle has passed reindeer but wasn't counted
-                    return left > -200 && left < reindeerLeft - 10;
-                });
-                
-                // If there are obstacles that should have been counted but weren't, count them now
-                recentObstacles.forEach(obs => {
+            if (gameRunning && obstaclesAvoided < targetObstacles) {
+                // Check ALL obstacles on screen for missed counts
+                obstacles.forEach(obs => {
                     if (obs.dataset.counted !== 'true') {
-                        const obsRight = parseFloat(obs.style.left) + (parseFloat(obs.dataset.width) || getObstacleWidth());
+                        const obsLeft = parseFloat(obs.style.left) || 0;
+                        const obsWidth = parseFloat(obs.dataset.width) || getObstacleWidth();
+                        const obsRight = obsLeft + obsWidth;
                         const reindeerLeft = getReindeerLeft();
-                        if (obsRight < reindeerLeft - 10) {
+                        
+                        // If obstacle has clearly passed reindeer, count it
+                        if (obsRight < reindeerLeft - 5) {
                             obs.dataset.counted = 'true';
                             obstaclesAvoided++;
+                            obstaclesAvoidedEl = document.getElementById('obstaclesAvoided');
                             if (obstaclesAvoidedEl) {
                                 obstaclesAvoidedEl.textContent = obstaclesAvoided;
                             }
-                            console.warn('RECOVERY: Counted missed obstacle! New count:', obstaclesAvoided);
+                            console.warn('🔄 RECOVERY: Counted missed obstacle! New count:', obstaclesAvoided, '| Obstacle position:', obsRight.toFixed(0), '| Reindeer:', reindeerLeft.toFixed(0));
                             
                             if (obstaclesAvoided >= targetObstacles) {
                                 endGame(true);
@@ -733,8 +742,9 @@
                     }
                 });
                 
-                if (recentObstacles.length === 0 && obstacles.length === 0 && obstaclesAvoided < targetObstacles) {
-                    console.warn('Possible stuck state detected. Obstacles avoided:', obstaclesAvoided, 'Creating new obstacle...');
+                // If no obstacles and score is low, create more
+                if (obstacles.length === 0 && obstaclesAvoided < targetObstacles) {
+                    console.warn('⚠️ No obstacles found, creating one...');
                     createObstacle();
                 }
             }
@@ -773,20 +783,21 @@
                 gameStatus.innerHTML = '<div>Navigate through obstacles</div><div class="progress-indicator">Obstacles Avoided: <span id="obstaclesAvoided">0</span>/5</div>';
                 // Re-get the element reference after updating HTML
                 obstaclesAvoidedEl = document.getElementById('obstaclesAvoided');
+                console.log('Game started. Counter element:', obstaclesAvoidedEl ? 'Found' : 'NOT FOUND');
             }
             
             // Create first obstacle after a short delay
             setTimeout(() => {
                 if (gameRunning) {
                     createObstacle();
-                    // Create new obstacles at intervals - increased max obstacles to 3 for better flow
+                    // Create new obstacles at intervals - increased max obstacles to 4 for better flow
                     obstacleInterval = setInterval(() => {
-                        if (gameRunning && obstacles.length < 3) {
+                        if (gameRunning && obstacles.length < 4) {
                             createObstacle();
                         }
-                    }, 1800);
+                    }, 1500); // Reduced interval to 1500ms for faster obstacle creation
                 }
-            }, 1000);
+            }, 800); // Reduced initial delay to 800ms
 
             // Start the game loop
             updateObstacles();
