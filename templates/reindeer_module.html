@@ -547,10 +547,14 @@
             obstacle.style.left = gameAreaWidth + 'px'; // Start off-screen to the right
             obstacle.style.bottom = OBSTACLE_BOTTOM + 'px';
             obstacle.style.width = obstacleWidth + 'px';
-            obstacle.dataset.counted = 'false';
+            obstacle.dataset.counted = 'false'; // Explicitly set to false
             obstacle.dataset.width = obstacleWidth;
+            obstacle.dataset.created = Date.now(); // Add timestamp for debugging
             gameArea.appendChild(obstacle);
             obstacles.push(obstacle);
+            
+            // Debug logging (can be removed in production)
+            console.log('Obstacle created. Total obstacles:', obstacles.length);
         }
 
         function checkCollision(obstacleLeft, obstacleRight) {
@@ -616,25 +620,38 @@
                     }
                 }
 
-                // Check if obstacle passed reindeer successfully
-                // Only count when obstacle has completely passed the reindeer (obstacle's right edge is past reindeer's left edge)
-                // Use a small buffer to ensure we count it even if there's slight overlap detection issues
-                if (obstacleRight < reindeerLeft - 5 && obstacle.dataset.counted !== 'true') {
+                // IMPROVED: Check if obstacle passed reindeer successfully
+                // Use a larger buffer (20px instead of 5px) to ensure counting happens before removal
+                // Also check that obstacle is past the reindeer's right edge, not just left edge
+                const hasPassedReindeer = obstacleRight < reindeerLeft - 20;
+                const isCounted = obstacle.dataset.counted === 'true';
+                
+                // Count obstacle if it has passed AND hasn't been counted yet
+                if (hasPassedReindeer && !isCounted) {
+                    // Mark as counted FIRST to prevent double-counting
                     obstacle.dataset.counted = 'true';
+                    
+                    // Then increment counter
                     obstaclesAvoided++;
+                    
+                    // Update display immediately
                     if (obstaclesAvoidedEl) {
                         obstaclesAvoidedEl.textContent = obstaclesAvoided;
                     }
                     
-                    // Check win condition
+                    // Debug logging (can be removed in production)
+                    console.log('Obstacle avoided! Count:', obstaclesAvoided);
+                    
+                    // Check win condition immediately after incrementing
                     if (obstaclesAvoided >= targetObstacles) {
                         endGame(true);
                         return;
                     }
                 }
 
-                // Remove obstacle when off-screen to the left
-                if (obstacleRight < -obstacleWidth) {
+                // Remove obstacle when off-screen to the left (with extra buffer)
+                // Only remove if it's been counted OR if it's way off screen
+                if (obstacleRight < -obstacleWidth * 2) {
                     obstaclesToRemove.push(index);
                     obstacle.remove();
                 }
@@ -651,18 +668,42 @@
             }
         }
 
+        // Safety check function to prevent stuck states
+        function checkGameState() {
+            // Safety check: if game is running but no obstacles are being created, restart
+            if (gameRunning && obstacles.length === 0 && obstaclesAvoided < targetObstacles) {
+                console.warn('Game state check: No obstacles found, creating one...');
+                createObstacle();
+            }
+            
+            // Safety check: if score is stuck, log for debugging
+            if (gameRunning && obstaclesAvoided >= 2 && obstaclesAvoided < targetObstacles) {
+                const recentObstacles = obstacles.filter(obs => {
+                    const left = parseFloat(obs.style.left) || 0;
+                    return left > -100; // Obstacles still on screen or recently passed
+                });
+                
+                if (recentObstacles.length === 0 && obstaclesAvoided < targetObstacles) {
+                    console.warn('Possible stuck state detected. Obstacles avoided:', obstaclesAvoided);
+                }
+            }
+        }
+
         function startGame() {
             if (gameRunning) return;
             
             gameRunning = true;
-            obstaclesAvoided = 0;
+            obstaclesAvoided = 0; // Reset counter
             obstacles = [];
             isJumping = false;
             
             // Update reindeer position for current screen size
             updateReindeerPosition();
             
-            if (obstaclesAvoidedEl) obstaclesAvoidedEl.textContent = '0';
+            // Reset display
+            if (obstaclesAvoidedEl) {
+                obstaclesAvoidedEl.textContent = '0';
+            }
             if (gameOver) gameOver.classList.remove('show');
             if (jumpButton) jumpButton.disabled = false;
             
@@ -674,13 +715,22 @@
             // Clear any existing obstacles
             document.querySelectorAll('.obstacle').forEach(obs => obs.remove());
             
+            // Reset game status
+            const gameStatus = document.getElementById('gameStatus');
+            if (gameStatus) {
+                gameStatus.classList.remove('completed');
+                gameStatus.innerHTML = '<div>Navigate through obstacles</div><div class="progress-indicator">Obstacles Avoided: <span id="obstaclesAvoided">0</span>/5</div>';
+                // Re-get the element reference after updating HTML
+                obstaclesAvoidedEl = document.getElementById('obstaclesAvoided');
+            }
+            
             // Create first obstacle after a short delay
             setTimeout(() => {
                 if (gameRunning) {
                     createObstacle();
-                    // Create new obstacles at intervals
+                    // Create new obstacles at intervals - increased max obstacles to 3 for better flow
                     obstacleInterval = setInterval(() => {
-                        if (gameRunning && obstacles.length < 2) {
+                        if (gameRunning && obstacles.length < 3) {
                             createObstacle();
                         }
                     }, 1800);
@@ -689,6 +739,13 @@
 
             // Start the game loop
             updateObstacles();
+            
+            // Periodic safety checks
+            setInterval(() => {
+                if (gameRunning) {
+                    checkGameState();
+                }
+            }, 2000);
         }
 
         function endGame(success) {

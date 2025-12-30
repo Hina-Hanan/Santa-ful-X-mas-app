@@ -185,6 +185,83 @@
         flex-shrink: 0;
     }
 
+    .instructions-panel {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.95);
+        border: 2px solid var(--gold-bright);
+        border-radius: 20px;
+        padding: 2rem;
+        max-width: 90%;
+        width: 400px;
+        z-index: 1000;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+        backdrop-filter: blur(10px);
+    }
+
+    .instructions-content h3 {
+        color: var(--gold-bright);
+        margin-top: 0;
+        font-size: 1.5rem;
+        text-align: center;
+    }
+
+    .instructions-content ol {
+        color: #fff;
+        line-height: 1.8;
+        padding-left: 1.5rem;
+    }
+
+    .instructions-content li {
+        margin-bottom: 0.5rem;
+    }
+
+    .instructions-hint {
+        background: rgba(255, 215, 0, 0.1);
+        border-left: 3px solid var(--gold-bright);
+        padding: 1rem;
+        margin: 1rem 0;
+        color: #fff;
+        border-radius: 5px;
+    }
+
+    .close-instructions {
+        width: 100%;
+        padding: 0.8rem;
+        background: var(--gold-bright);
+        color: #000;
+        border: none;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-top: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .close-instructions:hover {
+        background: #ffed4e;
+        transform: translateY(-2px);
+    }
+
+    /* Mobile adjustments for instructions */
+    @media (max-width: 768px) {
+        .instructions-panel {
+            width: 95%;
+            padding: 1.5rem;
+        }
+        
+        .instructions-content h3 {
+            font-size: 1.2rem;
+        }
+        
+        .instructions-content ol {
+            font-size: 0.9rem;
+        }
+    }
+
     .complete-button {
         padding: 0.8rem 3rem;
         background: linear-gradient(135deg, #4CAF50, #1B5E20);
@@ -238,6 +315,22 @@
 <div class="emotion-module-container">
     <div class="emotion-module-header">
         <h1>💚 Global Harmony</h1>
+    </div>
+
+    <div class="instructions-panel" id="instructionsPanel">
+        <div class="instructions-content">
+            <h3>📋 How to Play</h3>
+            <ol>
+                <li>Drag emotions from the side panels to regions on the map</li>
+                <li>Each region needs a <strong>specific emotion</strong> to fix its problem</li>
+                <li>Match the emotion correctly to stabilize the region</li>
+                <li>Complete all <strong>7 regions</strong> to finish the mission</li>
+            </ol>
+            <div class="instructions-hint">
+                💡 <strong>Hint:</strong> Look at each region's problem to figure out which emotion it needs!
+            </div>
+            <button class="close-instructions" onclick="closeInstructions()">Got it!</button>
+        </div>
     </div>
 
     <div class="interaction-counter">
@@ -384,6 +477,36 @@
             setTimeout(playAudio, 1000);
         }
         initBackgroundAudio();
+    })();
+</script>
+
+<script>
+    // Show instructions only on first visit
+    (function() {
+        function initInstructions() {
+            const instructionsPanel = document.getElementById('instructionsPanel');
+            if (!instructionsPanel) return;
+            
+            if (!localStorage.getItem('emotionInstructionsSeen')) {
+                instructionsPanel.style.display = 'block';
+            } else {
+                instructionsPanel.style.display = 'none';
+            }
+        }
+        
+        window.closeInstructions = function() {
+            const instructionsPanel = document.getElementById('instructionsPanel');
+            if (instructionsPanel) {
+                localStorage.setItem('emotionInstructionsSeen', 'true');
+                instructionsPanel.style.display = 'none';
+            }
+        };
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initInstructions);
+        } else {
+            initInstructions();
+        }
     })();
 </script>
 

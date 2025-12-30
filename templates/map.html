@@ -323,15 +323,69 @@
     /* Responsive adjustments */
     @media (max-width: 768px) {
         .journey-container {
-            min-height: 1500px;
-            padding: 60px 15px 200px 15px;
+            min-height: auto;
+            padding: 80px 10px 200px 10px;
+            max-width: 100%;
+        }
+        
+        .path-container {
+            width: 100%;
+            max-width: 350px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .level-node {
+            width: 70px;
+            height: 70px;
+            font-size: 24px;
+        }
+        
+        .level-number {
+            font-size: 24px;
+        }
+        
+        .level-label {
+            font-size: 8px;
+        }
+        
+        .node-label {
+            font-size: 11px;
+            white-space: normal;
+            max-width: 80px;
+            text-align: center;
+        }
+        
+        /* Adjust node positions for mobile */
+        .node-1 { top: 100px; }
+        .node-2 { top: 280px; left: 85%; }
+        .node-3 { top: 460px; left: 15%; }
+        .node-4 { top: 640px; }
+        
+        /* Adjust label positions */
+        .node-1 .node-label, .node-3 .node-label { 
+            right: auto;
+            left: 80px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .node-2 .node-label, .node-4 .node-label { 
+            left: 80px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .mission-pill {
+            font-size: 11px;
+            padding: 8px 20px;
+            top: 15px;
         }
         
         .victory-reveal {
-            top: 880px;
-            padding: 25px 15px;
-            width: calc(100% - 30px);
-            max-width: 400px;
+            top: 720px;
+            padding: 20px 15px;
+            width: calc(100% - 20px);
+            max-width: 90%;
         }
         
         .btn-stack {
@@ -346,20 +400,48 @@
         }
     }
     
-    @media (max-width: 500px) {
-        .path-container { width: 300px; }
-        
+    @media (max-width: 480px) {
         .journey-container {
-            min-height: 1600px;
-            padding: 50px 10px 250px 10px;
+            padding: 70px 5px 180px 5px;
+        }
+        
+        .path-container {
+            width: 100%;
+            max-width: 280px;
+        }
+        
+        .level-node {
+            width: 60px;
+            height: 60px;
+            font-size: 20px;
+        }
+        
+        .level-number {
+            font-size: 20px;
+        }
+        
+        .level-label {
+            font-size: 7px;
+        }
+        
+        .node-label {
+            font-size: 9px;
+            max-width: 70px;
+        }
+        
+        .node-1 { top: 90px; }
+        .node-2 { top: 250px; left: 88%; }
+        .node-3 { top: 410px; left: 12%; }
+        .node-4 { top: 570px; }
+        
+        .mission-pill {
+            font-size: 10px;
+            padding: 6px 15px;
         }
         
         .victory-reveal {
-            top: 900px;
-            padding: 20px 15px;
-            width: calc(100% - 20px);
-            max-width: 350px;
-            border-radius: 20px;
+            top: 650px;
+            padding: 15px 10px;
         }
         
         .victory-status {
@@ -382,10 +464,10 @@
     
     @media (max-width: 400px) {
         .victory-reveal {
-            top: 920px;
+            top: 620px;
             padding: 18px 12px;
             width: calc(100% - 20px);
-            max-width: 320px;
+            max-width: 95%;
         }
         
         .victory-status {
