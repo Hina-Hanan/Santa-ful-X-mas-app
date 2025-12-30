@@ -135,26 +135,34 @@ Santa_app/
 
 ## 📸 Screenshots
 
-_Add your screenshots here!_
+### Landing Page
+![Landing Page](screenshots/landingpage.png)
 
-### Suggested Screenshot Locations:
-- Landing page (`/`)
-- Instructions page (`/instructions`)
-- Journey map (`/map`)
-- Each game module (Elf, Reindeer, Ethics, Emotion)
-- Letter form (`/letter-to-santa/form`)
-- Santa's reply (`/letter-to-santa/reply`)
-- Christmas card (`/letter-to-santa/card`)
-- Finale page (`/finale`)
+### Instructions
+![Instructions Page](screenshots/instructions.png)
 
-To add screenshots:
-1. Create a `screenshots/` folder in the project root
-2. Add your screenshot images
-3. Update this section with markdown image links:
-   ```markdown
-   ![Landing Page](screenshots/landing.png)
-   ![Journey Map](screenshots/map.png)
-   ```
+### Journey Map / Levels
+![Journey Map](screenshots/levels.png)
+
+### Game Modules
+
+#### Elf Crisis Module
+![Elf Crisis Game](screenshots/elfgame.png)
+
+#### Reindeer Navigation Module
+![Reindeer Navigation Game](screenshots/reindeer.png)
+
+#### Gift Ethics Module
+![Gift Ethics Game](screenshots/ethics.png)
+
+#### Emotion Stabilizer Module
+![Emotion Stabilizer Game](screenshots/emotions.png)
+
+### Letter to Santa
+![Letter Writing Form](screenshots/letter_writing.png)
+
+### Christmas Card
+![Christmas Card](screenshots/x-mas_card.png)
 
 ## 🎯 How to Play
 
