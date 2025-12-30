@@ -1,10 +1,10 @@
-# 🎅 Santa App - Interactive Christmas Adventure
+# 🎅 Santa-ful X-mas - Interactive Christmas Adventure
 
 An immersive, interactive web application that takes users on a magical Christmas journey. Help Santa complete his mission by solving challenges across 4 unique game modules, then receive a personalized letter from Santa himself!
 
 ## 📖 Project Description
 
-Santa App is a Christmas-themed interactive web experience where users become Santa's helpers. The application features a sequential game progression system where players must complete 4 modules in order:
+Santa-ful X-mas is a Christmas-themed interactive web experience where users become Santa's helpers. The application features a sequential game progression system where players must complete 4 modules in order:
 
 1. **Elf Crisis** - Fix broken toys before Christmas
 2. **Reindeer Navigation** - Guide Santa's reindeer through obstacles
